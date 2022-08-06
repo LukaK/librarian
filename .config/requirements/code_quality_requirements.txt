@@ -18,6 +18,7 @@ docker
 yamllint
 cfn-lint
 
-# api gateway library
+# libraries
 aws_requests_auth
 deepdiff
+pydantic
