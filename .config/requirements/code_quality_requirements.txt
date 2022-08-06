@@ -1,0 +1,23 @@
+# code linting and formating
+flake8
+black
+bandit
+flake8-sfs
+
+# code unittests
+pytest
+pytest-env
+pytest-pythonpath
+pytest-cov
+pytest-mock
+moto
+moto-ext
+docker
+
+# cloudformation
+yamllint
+cfn-lint
+
+# api gateway library
+aws_requests_auth
+deepdiff

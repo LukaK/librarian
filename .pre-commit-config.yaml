@@ -1,0 +1,89 @@
+# Install pre-commit:   pip3 install pre-commit
+# Install hooks:        pre-commit install
+# Autoupdate versions:  pre-commit autoupdate
+default_language_version:
+  python: python3.7.9
+
+default_stages: [commit, push]
+fail_fast: true
+
+repos:
+  # string formatting
+  - repo: https://github.com/ikamensh/flynt/
+    rev: '0.76'
+    hooks:
+    -   id: flynt
+
+  # code formating
+  - repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+    - id: black
+
+  # import sorting
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.7.0
+    hooks:
+      - id: isort
+        args: [--profile, black]
+
+  # code linter
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+    - id: flake8
+      args: [--config, .config/flake8/config]
+      additional_dependencies: [flake8-sfs]
+
+  # security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+    - id: bandit
+      name: bandit
+      description: 'Bandit is a tool for finding common security issues in Python code'
+      entry: bandit
+      language: python
+      types: [python]
+      args: [-c, .config/bandit/config.yaml, -x, tests ,--recursive, .]
+
+  # yaml linter
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
+        name: yamllint
+        args: [-c, .config/yamllint/config.yaml]
+        description: "Checking formatting of yaml files"
+        files: '\.sam\.(yaml|yml)$'
+
+  # cloudformation linter
+  - repo: https://github.com/aws-cloudformation/cfn-python-lint
+    rev: v0.59.0
+    hooks:
+      - id: cfn-python-lint
+        name: cfn-lint
+        description: "Cloudformation linter"
+        files: '\.sam\.(yaml|yml)$'
+
+  # cloudformation linter
+  - repo: local
+    hooks:
+      - id: cfn-nag
+        name: cfn-nag
+        entry: cfn_nag --output-format txt
+        language: ruby
+        description: "Best practice linter"
+        files: '\.sam\.(yaml|yml)$'
+
+  # pytest hook
+  - repo: local
+    hooks:
+      - id: pytest
+        stages: [push]
+        name: pytest
+        entry: pytest
+        language: system
+        description: "Run pytest"
+        pass_filenames: false
+        always_run: true
