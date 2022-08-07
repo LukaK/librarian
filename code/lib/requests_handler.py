@@ -6,6 +6,7 @@ from dataclasses import asdict
 from typing import Callable, Optional
 
 from .data import Response, ScheduleItem, ScheduleRequest
+from .encoder import DecimalEncoder
 from .exceptions import (
     EnvironmentConfigError,
     NotFound,
@@ -46,7 +47,11 @@ class RequestsHandler:
         cls, schedule_item: Optional[ScheduleItem] = None, status_code: int = 200
     ) -> Response:
 
-        body = json.dumps(schedule_item) if schedule_item else ""
+        body = (
+            json.dumps(asdict(schedule_item), cls=DecimalEncoder)
+            if schedule_item
+            else ""
+        )
         response = Response(status_code=200, body=body)
         return response
 
