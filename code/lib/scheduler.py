@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import logging
+from dataclasses import asdict
 
 import boto3  # type: ignore
+from boto3.dynamodb.conditions import Attr  # type: ignore
 
 from .data import ScheduleItem, ScheduleRequest
 from .ds_hash import DSPeriodHasher
@@ -18,12 +20,22 @@ class DynamoScheduler:
 
     # resources
     environment = Environment.dynamodb_scheduler_env()
-    items_table = dynamodb_resource.Table(environment.items_table_name)
+    table = dynamodb_resource.Table(environment.items_table_name)
 
-    # TODO: Implement
+    # constants
+    time_period_hash_key = "time_period_hash"
+
     @classmethod
     def add_to_schedule(cls, schedule_item: ScheduleItem) -> None:
-        pass
+
+        logger.info(
+            f"Writing item to the schedule: {schedule_item}", extra=request_context
+        )
+        cls.table.put_item(
+            Item=asdict(schedule_item),
+            ConditionExpression=(Attr(cls.time_period_hash_key).not_exists()),
+        )
+        logger.info("Item added to the schedule successfully", extra=request_context)
 
     @classmethod
     def create_schedule_item(cls, schedule_request: ScheduleRequest) -> ScheduleItem:
