@@ -36,10 +36,10 @@ class DSPeriodHasher:
         )
 
         try:
-            time_period_hash = TimePeriodMap(**response["Items"][0])
+            return TimePeriodMap(**response["Items"][0])
         except IndexError:
-            time_period_hash = None
-        return time_period_hash
+            pass
+        return None
 
     # and handle those
     @classmethod
