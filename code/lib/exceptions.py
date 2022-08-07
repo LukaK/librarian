@@ -8,3 +8,11 @@ class ValidationError(Exception):
         self.value = value
         self.message = message
         super().__init__(message)
+
+
+class EnvironmentConfigError(Exception):
+    """Custom environment initialization error"""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)

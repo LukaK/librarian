@@ -2,13 +2,23 @@
 import logging
 from typing import Optional
 
+import boto3  # type: ignore
+
 from .data import ScheduleItem, ScheduleRequest
+from .environment import Environment
 from .logging import request_context
 
+# resources
 logger = logging.getLogger(__name__)
+dynamodb_resource = boto3.resource("dynamodb")
 
 
 class DynamoScheduler:
+
+    # resources
+    environment = Environment.dynamodb_scheduler_env()
+    hash_table = dynamodb_resource.Table(environment.hash_table_name)
+    items_table = dynamodb_resource.Table(environment.items_table_name)
 
     # TODO: implement
     @classmethod

@@ -43,6 +43,7 @@ class TimePeriodHash:
     time_period_hash: str
 
 
+# TODO: Too many variables in the schedule item, refactor this
 # schedule item in dynamodb
 @dataclass(frozen=True)
 class ScheduleItem:
