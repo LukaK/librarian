@@ -25,3 +25,12 @@ class NotFound(Exception):
         self.value = value
         self.message = message
         super().__init__(message)
+
+
+class OperationsError(Exception):
+    """Custom operations error"""
+
+    def __init__(self, value: str, message: str) -> None:
+        self.value = value
+        self.message = message
+        super().__init__(message)

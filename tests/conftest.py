@@ -25,22 +25,28 @@ def aws_credentials(mocker: MockerFixture):
 
 @pytest.fixture(scope="function")
 def patch_environment(mocker: MockerFixture, aws_credentials):
+    items_table_name = "schedule_items"
+    hash_table_name = "period_hashes"
+    index_name = "gsi_id"
+
     mocker.patch.dict(
         os.environ,
-        {Environment.hash_table_env_name: "", Environment.items_table_env_name: ""},
+        {
+            Environment.hash_table_env_name: hash_table_name,
+            Environment.items_table_env_name: items_table_name,
+        },
     )
+    return items_table_name, index_name, hash_table_name
 
 
 @pytest.fixture(scope="function")
-def mock_dynamodb(aws_credentials):
-    @mock_dynamodb2
-    def dynamo_table():
-
+def dynamo_tables(aws_credentials, patch_environment):
+    with mock_dynamodb2():
         dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
 
-        # create items table
+        # Create items table
         dynamodb.create_table(
-            TableName="items_table",
+            TableName=patch_environment[0],
             KeySchema=[
                 {"AttributeName": "time_period_hash", "KeyType": "HASH"},
                 {"AttributeName": "trigger_time", "KeyType": "RANGE"},
@@ -48,22 +54,26 @@ def mock_dynamodb(aws_credentials):
             AttributeDefinitions=[
                 {"AttributeName": "time_period_hash", "AttributeType": "S"},
                 {"AttributeName": "trigger_time", "AttributeType": "N"},
-                {"AttributeName": "gsi_id", "AttributeType": "S"},
+                {"AttributeName": "schedule_id", "AttributeType": "S"},
             ],
             BillingMode="PAY_PER_REQUEST",
+            SSESpecification={
+                "Enabled": True,
+            },
             GlobalSecondaryIndexes=[
                 {
-                    "IndexName": "gsi_id",
+                    "IndexName": patch_environment[1],
                     "KeySchema": [
                         {"AttributeName": "schedule_id", "KeyType": "HASH"},
                     ],
                     "Projection": {"ProjectionType": "ALL"},
-                },
+                }
             ],
         )
 
+        # create hash table
         dynamodb.create_table(
-            TableName="period_hash_table",
+            TableName=patch_environment[2],
             KeySchema=[
                 {"AttributeName": "time_period", "KeyType": "HASH"},
             ],
@@ -71,7 +81,10 @@ def mock_dynamodb(aws_credentials):
                 {"AttributeName": "time_period", "AttributeType": "S"},
             ],
             BillingMode="PAY_PER_REQUEST",
+            SSESpecification={
+                "Enabled": True,
+            },
         )
-        return dynamodb
-
-    return mock_dynamodb
+        items_table = dynamodb.Table(patch_environment[0])
+        hash_table = dynamodb.Table(patch_environment[2])
+        yield items_table, hash_table

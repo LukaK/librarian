@@ -7,9 +7,11 @@ from typing import Optional
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
+from botocore.exceptions import ClientError
 
 from .data import TimePeriodMap
 from .environment import Environment
+from .exceptions import OperationsError
 from .logging import request_context
 
 # resources
@@ -50,10 +52,13 @@ class DSPeriodHasher:
         )
 
         logger.info(f"Writing new period hash to the table: {time_period_hash}")
-        cls.table.put_item(
-            Item=asdict(time_period_hash),
-            ConditionExpression=(Attr(cls.period_key_key).not_exists()),
-        )
+        try:
+            cls.table.put_item(
+                Item=asdict(time_period_hash),
+                ConditionExpression=(Attr(cls.period_key_key).not_exists()),
+            )
+        except ClientError as e:
+            raise OperationsError(value=period_key, message=str(e))
         return time_period_hash
 
     @classmethod
