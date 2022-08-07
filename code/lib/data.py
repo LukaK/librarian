@@ -19,7 +19,7 @@ class ScheduleRequest(pydantic.BaseModel):
 
     @pydantic.validator("workflow_payload")
     @classmethod
-    def validate_schedule_time(cls, value):
+    def validate_workflow_payload(cls, value):
         if value is not None:
             try:
                 json.loads(value)

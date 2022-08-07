@@ -4,11 +4,12 @@ from dataclasses import asdict
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
+from botocore.exceptions import ClientError
 
 from .data import ScheduleItem, ScheduleRequest
 from .ds_hash import DSPeriodHasher
 from .environment import Environment
-from .exceptions import NotFound
+from .exceptions import NotFound, OperationsError
 from .logging import request_context
 
 # resources
@@ -67,10 +68,13 @@ class DynamoScheduler:
         logger.info(
             f"Writing item to the schedule: {schedule_item}", extra=request_context
         )
-        cls.table.put_item(
-            Item=asdict(schedule_item),
-            ConditionExpression=(Attr(cls.time_period_hash_key).not_exists()),
-        )
+        try:
+            cls.table.put_item(
+                Item=asdict(schedule_item),
+                ConditionExpression=(Attr(cls.time_period_hash_key).not_exists()),
+            )
+        except ClientError as e:
+            raise OperationsError(value=str(asdict(schedule_item)), message=str(e))
         logger.info("Item added to the schedule successfully", extra=request_context)
 
     @classmethod
@@ -86,7 +90,10 @@ class DynamoScheduler:
 
         # create schedule item
         schedule_item = ScheduleItem(
-            time_period_hash=time_period_map.time_period_hash, **schedule_request
+            time_period_hash=time_period_map.time_period_hash,
+            schedule_time=schedule_request.schedule_time,
+            workflow_arn=schedule_request.workflow_arn,
+            workflow_payload=schedule_request.workflow_payload,
         )
 
         logger.info(
