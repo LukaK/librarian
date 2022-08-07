@@ -107,7 +107,7 @@ Resources:
   ScheduleHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: api_gw.schedule.lambda_handler
+      Handler: api_gw.schedule_item.lambda_handler
       CodeUri: ../code
       Policies:
         - DynamoDBCrudPolicy:
@@ -161,7 +161,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ../code
-      Handler: api_gw.delete.lambda_handler
+      Handler: api_gw.remove_schedule_item.lambda_handler
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ScheduleItemsTableName
