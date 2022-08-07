@@ -3,6 +3,13 @@
 ### Introduction
 
 ### Instalation
+```
+# create stack
+sam deploy --gudied --template-file sam/service.sam.yaml
+
+# delete stack
+sam delete --stack-name <stack name>
+```
 
 ### Development
 ```
