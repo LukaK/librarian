@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from typing import Protocol
 
-from .api_gw.data import ScheduleRequest
+from .requests_handler.data import ScheduleRequest
 from .scheduler.data import ScheduleItem
 
 

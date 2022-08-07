@@ -17,7 +17,7 @@ def test__scheduler_get_item_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_create_schedule_item(dynamo_tables):
-    from lib.api_gw.data import ScheduleRequest
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.data import DynamodbItem
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
@@ -32,7 +32,7 @@ def test__scheduler_create_schedule_item(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_get_item_exists(dynamo_tables):
-    from lib.api_gw.data import ScheduleRequest
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -57,8 +57,8 @@ def test__scheduler_remove_from_schedule_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_remove_from_schedule_exists(dynamo_tables):
-    from lib.api_gw.data import ScheduleRequest
     from lib.exceptions import NotFound
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -75,7 +75,7 @@ def test__scheduler_remove_from_schedule_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
-    from lib.api_gw.data import ScheduleRequest
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)

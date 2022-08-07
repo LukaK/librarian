@@ -20,7 +20,7 @@ def test__remove_item_lambda_not_exists(dynamo_tables):
 
 def test__remove_item_lambda_exists(dynamo_tables):
     from api_gw.remove_schedule_item import lambda_handler
-    from lib.api_gw.data import ScheduleRequest
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -53,7 +53,7 @@ def test__get_item_lambda_not_exists(dynamo_tables):
 
 def test__get_item_lambda_exists(dynamo_tables):
     from api_gw.get_schedule_item import lambda_handler
-    from lib.api_gw.data import ScheduleRequest
+    from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)

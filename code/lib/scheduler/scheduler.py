@@ -5,10 +5,10 @@ from dataclasses import asdict, fields
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
 from botocore.exceptions import ClientError  # type: ignore
-from lib.api_gw.data import ScheduleRequest
 from lib.environment import Environment
 from lib.exceptions import NotFound, OperationsError
 from lib.logging import request_context
+from lib.requests_handler.data import ScheduleRequest
 
 from .data import DynamodbItem, ScheduleItem
 from .ds_hash import DSPeriodHasher
