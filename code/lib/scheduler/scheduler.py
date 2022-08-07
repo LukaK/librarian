@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import logging
-from dataclasses import asdict, fields
+from dataclasses import asdict
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
@@ -11,6 +11,7 @@ from lib.logging import request_context
 from lib.requests_handler.data import ScheduleRequest
 
 from .data import DynamodbItem, ScheduleItem
+from .data_mapper import DataMapper
 from .ds_hash import DSPeriodHasher
 
 # resources
@@ -29,31 +30,6 @@ class DynamoScheduler:
     trigger_time_key = "trigger_time"
 
     @classmethod
-    def _dynamodb_item_to_record(cls, dynamodb_item: DynamodbItem) -> dict:
-
-        schedule_item_payload = asdict(dynamodb_item.schedule_item)
-        dynamodb_item_payload = asdict(dynamodb_item)
-        dynamodb_item_payload.update(schedule_item_payload)
-        del dynamodb_item_payload["schedule_item"]
-
-        return dynamodb_item_payload
-
-    @classmethod
-    def _record_to_dynamodb_item(cls, record: dict) -> DynamodbItem:
-
-        schedule_item_payload = {f.name: record[f.name] for f in fields(ScheduleItem)}
-        schedule_item = ScheduleItem(**schedule_item_payload)
-
-        dynamodb_item = DynamodbItem(
-            time_period_hash=record["time_period_hash"],
-            trigger_time=record["trigger_time"],
-            status=record["status"],
-            schedule_item=schedule_item,
-        )
-
-        return dynamodb_item
-
-    @classmethod
     def _get_dynamodb_item(cls, schedule_id: str) -> DynamodbItem:
         logger.info(f"Retrieving dynamodb item: {schedule_id}", extra=request_context)
 
@@ -67,7 +43,7 @@ class DynamoScheduler:
             raise NotFound(value=schedule_id, message="Schedule item not found")
 
         # construct dynamodb item from the record
-        dynamodb_item = cls._record_to_dynamodb_item(item)
+        dynamodb_item = DataMapper._record_to_dynamodb_item(item)
 
         logger.info(
             f"Item successfully retrieved: {dynamodb_item}", extra=request_context
@@ -106,7 +82,7 @@ class DynamoScheduler:
         )
 
         dynamodb_item = cls._create_dynamodb_item(schedule_request)
-        dynamodb_item_payload = cls._dynamodb_item_to_record(dynamodb_item)
+        dynamodb_item_payload = DataMapper._dynamodb_item_to_record(dynamodb_item)
 
         try:
             cls.table.put_item(
