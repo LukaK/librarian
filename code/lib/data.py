@@ -29,23 +29,25 @@ class ScheduleRequest(pydantic.BaseModel):
                 )
         return value
 
+    class Config:
+        frozen = True
+
 
 # response data
-@dataclass
+@dataclass(frozen=True)
 class Response:
     status_code: int
     body: str
 
 
 # data class for mapping of time period to a hash for dynamodb
-@dataclass
+@dataclass(frozen=True)
 class TimePeriodMap:
     time_period: str
     time_period_hash: str
 
 
 # TODO: Too many variables in the schedule item, refactor this
-# TODO: Add schedule time formatted as a property
 # schedule item in dynamodb
 @dataclass(frozen=True)
 class ScheduleItem:

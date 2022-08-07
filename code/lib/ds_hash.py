@@ -7,7 +7,7 @@ from typing import Optional
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError  # type: ignore
 
 from .data import TimePeriodMap
 from .environment import Environment
