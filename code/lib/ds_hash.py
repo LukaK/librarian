@@ -41,7 +41,6 @@ class DSPeriodHasher:
             time_period_hash = None
         return time_period_hash
 
-    # TODO: See what exceptions are thrown for breaking condition expression
     # and handle those
     @classmethod
     def _add_period_hash(cls, period_key: str) -> TimePeriodMap:
