@@ -3,11 +3,12 @@ import logging
 from dataclasses import asdict
 
 import boto3  # type: ignore
-from boto3.dynamodb.conditions import Attr  # type: ignore
+from boto3.dynamodb.conditions import Attr, Key  # type: ignore
 
 from .data import ScheduleItem, ScheduleRequest
 from .ds_hash import DSPeriodHasher
 from .environment import Environment
+from .exceptions import NotFound
 from .logging import request_context
 
 # resources
@@ -22,17 +23,43 @@ class DynamoScheduler:
     table = dynamodb_resource.Table(environment.items_table_name)
 
     # constants
+    index_name = "index_id"
     time_period_hash_key = "time_period_hash"
+    trigger_time_key = "trigger_time"
 
-    # TODO: implement
     @classmethod
-    def get_schedule_item(self, schedule_id: str) -> ScheduleItem:
-        pass
+    def get_schedule_item(cls, schedule_id: str) -> ScheduleItem:
+        logger.info(f"Retrieving schedule item: {schedule_id}", extra=request_context)
 
-    # TODO: implement
+        response = cls.table.query(
+            IndexName=cls.index_name,
+            KeyConditionExpression=Key("schedule_id").eq(schedule_id),
+        )
+        try:
+            item = response["Items"][0]
+        except IndexError:
+            raise NotFound(value=schedule_id, message="Schedule item not found")
+        schedule_item = ScheduleItem(**item)
+
+        logger.info(
+            f"Item successfully retrieved: {schedule_item}", extra=request_context
+        )
+        return schedule_item
+
     @classmethod
-    def remove_from_schedule(self, schedule_id: str) -> None:
-        pass
+    def remove_from_schedule(cls, schedule_id: str) -> None:
+
+        logger.info(
+            f"Removing item from the schedule: {schedule_id}", extra=request_context
+        )
+        schedule_item = cls.get_schedule_item(schedule_id)
+        key_item = {
+            cls.time_period_hash_key: schedule_item.time_period_hash,
+            cls.trigger_time_key: schedule_item.trigger_time,
+        }
+
+        cls.table.delete_item(Key=key_item)
+        logger.info("Schedule item successfully deleted", extra=request_context)
 
     @classmethod
     def add_to_schedule(cls, schedule_item: ScheduleItem) -> None:

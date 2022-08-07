@@ -37,10 +37,12 @@ class DSPeriodHasher:
 
         try:
             time_period_hash = TimePeriodMap(**response["Items"][0])
-        except TypeError:
+        except IndexError:
             time_period_hash = None
         return time_period_hash
 
+    # TODO: See what exceptions are thrown for breaking condition expression
+    # and handle those
     @classmethod
     def _add_period_hash(cls, period_key: str) -> TimePeriodMap:
 
