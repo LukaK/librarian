@@ -44,6 +44,7 @@ class TimePeriodMap:
 
 
 # TODO: Too many variables in the schedule item, refactor this
+# TODO: Add schedule time formatted as a property
 # schedule item in dynamodb
 @dataclass(frozen=True)
 class ScheduleItem:

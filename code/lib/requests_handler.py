@@ -6,7 +6,7 @@ from dataclasses import asdict
 from typing import Callable, Optional
 
 from .data import Response, ScheduleItem, ScheduleRequest
-from .exceptions import EnvironmentConfigError, ValidationError
+from .exceptions import EnvironmentConfigError, NotFound, ValidationError
 from .logging import request_context
 from .protocols import Scheduler
 
@@ -24,6 +24,8 @@ class RequestsHandler:
                 response = Response(status_code=400, body=e.message)
             except EnvironmentConfigError as e:
                 response = Response(status_code=500, body=e.message)
+            except NotFound as e:
+                response = Response(status_code=400, body=e.message)
             except Exception as e:
                 response = Response(status_code=501, body=str(e))
 
