@@ -8,7 +8,7 @@ from .logging import request_context
 logger = logging.getLogger(__name__)
 
 
-class Scheduler:
+class DynamoScheduler:
 
     # TODO: implement
     @classmethod

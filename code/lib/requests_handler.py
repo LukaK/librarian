@@ -8,7 +8,7 @@ from typing import Callable
 from .data import Response, ScheduleItem, ScheduleRequest
 from .exceptions import ValidationError
 from .logging import request_context
-from .scheduler import Scheduler
+from .protocols import Scheduler
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,9 @@ class RequestsHandler:
 
     @classmethod
     @handler_methods_wrapper
-    def add_schedule_item(cls, schedule_request_payload: dict) -> Response:
+    def add_schedule_item(
+        cls, schedule_request_payload: dict, scheduler: Scheduler
+    ) -> Response:
         logger.info(
             f"Handling schedule request payload: {schedule_request_payload}",
             extra=request_context,
@@ -47,8 +49,8 @@ class RequestsHandler:
         schedule_request = ScheduleRequest(**schedule_request_payload)
 
         # create schedule item
-        schedule_item = Scheduler.create_schedule_item(schedule_request)
-        Scheduler.add_to_schedule(schedule_item)
+        schedule_item = scheduler.create_schedule_item(schedule_request)
+        scheduler.add_to_schedule(schedule_item)
 
         # create response
         return cls._create_response(schedule_item)
