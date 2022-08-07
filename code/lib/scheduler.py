@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import logging
-from typing import Optional
 
 import boto3  # type: ignore
 
 from .data import ScheduleItem, ScheduleRequest
+from .ds_hash import DSPeriodHasher
 from .environment import Environment
 from .logging import request_context
 
@@ -18,18 +18,7 @@ class DynamoScheduler:
 
     # resources
     environment = Environment.dynamodb_scheduler_env()
-    hash_table = dynamodb_resource.Table(environment.hash_table_name)
     items_table = dynamodb_resource.Table(environment.items_table_name)
-
-    # TODO: implement
-    @classmethod
-    def _get_time_period_hans(cls, trigger_time: int) -> Optional[str]:
-        pass
-
-    # TODO: Implement
-    @classmethod
-    def _create_time_period_hash(cls, trigger_time: int) -> str:
-        pass
 
     # TODO: Implement
     @classmethod
@@ -43,15 +32,13 @@ class DynamoScheduler:
         )
 
         # get schedule period mapping
-        time_period_hash = cls._get_time_period_hans(schedule_request.schedule_time)
-        if time_period_hash is None:
-            time_period_hash = cls._create_time_period_hash(
-                schedule_request.schedule_time
-            )
+        time_period_map = DSPeriodHasher.get_time_period_hash(
+            schedule_request.schedule_time
+        )
 
         # create schedule item
         schedule_item = ScheduleItem(
-            time_period_hash=time_period_hash, **schedule_request
+            time_period_hash=time_period_map.time_period_hash, **schedule_request
         )
 
         logger.info(

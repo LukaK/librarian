@@ -38,7 +38,7 @@ class Response:
 
 # data class for mapping of time period to a hash for dynamodb
 @dataclass
-class TimePeriodHash:
+class TimePeriodMap:
     time_period: str
     time_period_hash: str
 
