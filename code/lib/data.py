@@ -73,3 +73,28 @@ class ScheduleItem:
     @property
     def schedule_time_formatted(self) -> str:
         return datetime.utcfromtimestamp(self.schedule_time).strftime("%Y-%m-%d %H:%M")
+
+
+@dataclass(frozen=True)
+class LambdaProxyRequest:
+    lambda_event: dict
+    context: object
+
+    @property
+    def http_method(self) -> str:
+        return self.lambda_event["httpMethod"]
+
+    @property
+    def payload(self):
+        if self.http_method == "GET":
+            return self.query_string_parameters
+        return self.body
+
+    @property
+    def query_string_parameters(self) -> Optional[dict]:
+        return self.lambda_event.get("queryStringParameters")
+
+    @property
+    def body(self) -> Optional[dict]:
+        body = self.lambda_event.get("body")
+        return body if body is None else json.loads(body)
