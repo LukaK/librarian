@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  ScheduleItemsTableName:
+    Type: String
+    Description: Name of the schedule table
+
+  ScheduleIdIndexName:
+    Type: String
+    Description: Name of the schedule id index
+
+  HashTableName:
+    Type: String
+    Description: Name of the table with time period hashes
+
+  # CertificateArn:
+  #   Type: String
+  #   Description: Arn of the network certificate
+  #
+  # HostedZoneId:
+  #   Type: String
+  #   Description: Hosted zone id
+  #
+  # DomainName:
+  #   Type: String
+  #   Description: Parent domain name
+
+Globals:
+  Function:
+    Runtime: python3.9
+    MemorySize: 128
+    Timeout: 15
+    Environment:
+      Variables:
+        SCHEDULE_ITEMS_TABLE_NAME: !Ref ScheduleItemsTableName
+        HASH_TABLE_NAME: !Ref HashTableName
+        SCHEDULE_ID_INDEX_NAME: !Ref ScheduleIdIndexName
+
+Resources:
+
+  #===================================================================
+  # Api gateway
+  #===================================================================
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: "prod"
+      # Domain:
+      #   CertificateArn: !Ref CertificateArn
+      #   DomainName: !Sub "scheduler.${DomainName}"
+      #   EndpointConfiguration: REGIONAL
+      #   Route53:
+          # HostedZoneId: !Ref HostedZoneId
+      Auth:
+        DefaultAuthorizer: AWS_IAM
+        InvokeRole: !GetAtt ApiGwInvokeRole.Arn
+      Models:
+        GetDeleteScheduleModel:
+          $schema: "http://json-schema.org/draft-04/mySchema#"
+          type: object
+          required:
+            - schedule_id
+          properties:
+            schedule_id:
+              type: string
+        ScheduleModel:
+          $schema: "http://json-schema.org/draft-04/mySchema#"
+          type: object
+          required:
+            - workflow_arn
+            - schedule_time
+            - workflow_payload
+          properties:
+            workflow_arn:
+              type: string
+            schedule_time:
+              type: integer
+            workflow_payload:
+              type: object
+
+  ApiGwInvokeRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "apigateway.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: lambda
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: "lambda:InvokeFunction"
+                Resource:
+                  - !GetAtt ScheduleHandler.Arn
+                  - !GetAtt GetScheduleItem.Arn
+                  - !GetAtt DeleteSchedule.Arn
+
+  #===================================================================
+  # Lambda functions
+  #===================================================================
+  ScheduleHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api_gw.schedule.lambda_handler
+      CodeUri: ../code
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+        - Statement:
+            - Effect: Allow
+              Action:
+                - "lambda:GetFunction"
+              Resource: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:*"
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /schedule
+            Method: POST
+            RestApiId: !Ref ApiGatewayApi
+            RequestModel:
+              Model: ScheduleModel
+              Required: true
+              ValidateBody: true
+
+  GetScheduleItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api_gw.get_schedule_item.lambda_handler
+      CodeUri: ../code
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /schedule
+            Method: GET
+            RestApiId: !Ref ApiGatewayApi
+            RequestModel:
+              Model: GetDeleteScheduleModel
+              Required: true
+              ValidateParameters: true
+            RequestParameters:
+              - method.request.querystring.schedule_id:
+                  Required: true
+                  Caching: false
+
+  DeleteSchedule:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../code
+      Handler: api_gw.delete.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /delete
+            Method: POST
+            RestApiId: !Ref ApiGatewayApi
+            RequestModel:
+              Model: GetDeleteScheduleModel
+              Required: true
+              ValidateBody: true
+
+# Outputs:
+#   SchedulerApiURL:
+#     Description: Url for the scheduler api
+#     Value: !Sub "scheduler.${DomainName}"

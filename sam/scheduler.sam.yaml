@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+# Parameters:
+#
+#   CertificateArn:
+#     Type: String
+#     Description: Arn of the network certificate
+#
+#   DomainName:
+#     Type: String
+#     Description: Domain name
+#
+#   HostedZoneId:
+#     Type: String
+#     Description: Hosted zone id
+
+Resources:
+
+  #===================================================================
+  # Request handler stack
+  #===================================================================
+  RequestHandler:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./api_gw.sam.yaml
+      Parameters:
+        ScheduleItemsTableName: !Ref ScheduleItemsTable
+        ScheduleIdIndexName: ScheduleIdIndex
+        HashTableName: !Ref HashTable
+        # CertificateArn: !Ref CertificateArn
+        # DomainName: !Ref DomainName
+        # HostedZoneId: !Ref HostedZoneId
+
+  #===================================================================
+  # Schedule table
+  #===================================================================
+  ScheduleItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: time_period_hash
+          AttributeType: S
+        - AttributeName: trigger_time
+          AttributeType: N
+        - AttributeName: schedule_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: time_period_hash
+          KeyType: HASH
+        - AttributeName: trigger_time
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+      GlobalSecondaryIndexes:
+        - IndexName: ScheduleIdIndex
+          KeySchema:
+            - AttributeName: schedule_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  HashTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: time_period
+        Type: String
+      SSESpecification:
+        SSEEnabled: true
+
+
+# Outputs:
+#   SchedulerApiURL:
+#     Description: Url for the scheduler api
+#     Value: !GetAtt RequestHandler.Outputs.SchedulerApiURL

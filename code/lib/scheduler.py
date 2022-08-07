@@ -24,7 +24,6 @@ class DynamoScheduler:
     table = dynamodb_resource.Table(environment.items_table_name)
 
     # constants
-    index_name = "gsi_id"
     time_period_hash_key = "time_period_hash"
     trigger_time_key = "trigger_time"
 
@@ -33,7 +32,7 @@ class DynamoScheduler:
         logger.info(f"Retrieving schedule item: {schedule_id}", extra=request_context)
 
         response = cls.table.query(
-            IndexName=cls.index_name,
+            IndexName=cls.environment.schedule_id_index_name,
             KeyConditionExpression=Key("schedule_id").eq(schedule_id),
         )
         try:

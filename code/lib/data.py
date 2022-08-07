@@ -11,6 +11,7 @@ import pydantic  # type: ignore
 from .exceptions import ValidationError
 
 
+# TODO: Add validator for scheduler arn ( check if function exists )
 # data for schedule request
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int

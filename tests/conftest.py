@@ -34,6 +34,7 @@ def patch_environment(mocker: MockerFixture, aws_credentials):
         {
             Environment.hash_table_env_name: hash_table_name,
             Environment.items_table_env_name: items_table_name,
+            Environment.schedule_id_index_env_name: index_name,
         },
     )
     return items_table_name, index_name, hash_table_name
