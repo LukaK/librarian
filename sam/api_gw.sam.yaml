@@ -57,7 +57,7 @@ Resources:
         DefaultAuthorizer: AWS_IAM
         InvokeRole: !GetAtt ApiGwInvokeRole.Arn
       Models:
-        GetDeleteScheduleModel:
+        GetRemoveScheduleItemModel:
           $schema: "http://json-schema.org/draft-04/mySchema#"
           type: object
           required:
@@ -123,7 +123,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /schedule
+            Path: /schedule_item
             Method: POST
             RestApiId: !Ref ApiGatewayApi
             RequestModel:
@@ -145,11 +145,11 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /schedule
+            Path: /get_item
             Method: GET
             RestApiId: !Ref ApiGatewayApi
             RequestModel:
-              Model: GetDeleteScheduleModel
+              Model: GetRemoveScheduleItemModel
               Required: true
               ValidateParameters: true
             RequestParameters:
@@ -171,11 +171,11 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /delete
+            Path: /remove_item
             Method: POST
             RestApiId: !Ref ApiGatewayApi
             RequestModel:
-              Model: GetDeleteScheduleModel
+              Model: GetRemoveScheduleItemModel
               Required: true
               ValidateBody: true
 

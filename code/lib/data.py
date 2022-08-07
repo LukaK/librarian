@@ -8,7 +8,7 @@ from typing import Optional
 
 import pydantic  # type: ignore
 
-from .exceptions import ValidationError
+from .exceptions import OperationsError, ValidationError
 
 
 # TODO: Add validator for scheduler arn ( check if function exists )
@@ -75,11 +75,18 @@ class ScheduleItem:
         return datetime.utcfromtimestamp(self.schedule_time).strftime("%Y-%m-%d %H:%M")
 
 
-# TODO: Add tests
-@dataclass(frozen=True)
-class LambdaProxyRequest:
+class LambdaProxyRequest(pydantic.BaseModel):
     lambda_event: dict
-    context: object
+    context: Optional[object] = None
+
+    @pydantic.validator("lambda_event")
+    @classmethod
+    def validate_lambda_event(cls, value: dict) -> dict:
+        if "httpMethod" not in value:
+            raise OperationsError(
+                value=str(value), message="Lambda event not formatter correctly"
+            )
+        return value
 
     @property
     def http_method(self) -> str:
