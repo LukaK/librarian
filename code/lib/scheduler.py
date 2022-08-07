@@ -23,7 +23,7 @@ class DynamoScheduler:
     table = dynamodb_resource.Table(environment.items_table_name)
 
     # constants
-    index_name = "index_id"
+    index_name = "gsi_id"
     time_period_hash_key = "time_period_hash"
     trigger_time_key = "trigger_time"
 

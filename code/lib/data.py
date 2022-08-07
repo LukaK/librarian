@@ -3,6 +3,7 @@ import json
 import random
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 import pydantic  # type: ignore
@@ -14,7 +15,7 @@ from .exceptions import ValidationError
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int
     workflow_arn: str
-    workflow_payload: Optional[dict]
+    workflow_payload: Optional[dict] = None
 
     @pydantic.validator("workflow_payload")
     @classmethod
@@ -49,12 +50,11 @@ class TimePeriodMap:
 @dataclass(frozen=True)
 class ScheduleItem:
     time_period_hash: str
-    trigger_time: Optional[int]
-    schedule_id: Optional[str]
     schedule_time: int
-    schedule_time_formatted: str
     workflow_arn: str
-    workflow_payload: Optional[dict]
+    trigger_time: Optional[int] = None
+    schedule_id: Optional[str] = None
+    workflow_payload: Optional[dict] = None
 
     def __post_init__(self):
         # set schedule id
@@ -66,3 +66,7 @@ class ScheduleItem:
             trigger_time = self.schedule_time * 10**6
             trigger_time += random.randint(0, 10**6 - 1)  # nosec
             object.__setattr__(self, "trigger_time", trigger_time)
+
+    @property
+    def schedule_time_formatted(self) -> str:
+        return datetime.utcfromtimestamp(self.schedule_time).strftime("%Y-%m-%d %H:%M")
