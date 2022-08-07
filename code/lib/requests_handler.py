@@ -73,16 +73,36 @@ class RequestsHandler:
 
     @classmethod
     @_handler_methods_wrapper
-    def get_schedule_item(cls, schedule_id: str, scheduler: Scheduler) -> Response:
+    def get_schedule_item(cls, request_payload: dict, scheduler: Scheduler) -> Response:
 
-        logger.info(f"Retrieving schedule item: {schedule_id}", extra=request_context)
+        logger.info(
+            f"Retrieving schedule item: {request_payload}", extra=request_context
+        )
+
+        # validation
+        if "schedule_id" not in request_payload:
+            raise ValidationError(
+                value=str(request_payload), message="Request not valid"
+            )
+
+        schedule_id = request_payload["schedule_id"]
         schedule_item = scheduler.get_schedule_item(schedule_id)
         return cls._create_response(schedule_item)
 
     @classmethod
     @_handler_methods_wrapper
-    def remove_schedule_item(cls, schedule_id: str, scheduler: Scheduler) -> Response:
+    def remove_schedule_item(
+        cls, request_payload: dict, scheduler: Scheduler
+    ) -> Response:
 
-        logger.info(f"Removing schedule item: {schedule_id}", extra=request_context)
+        logger.info(f"Removing schedule item: {request_payload}", extra=request_context)
+
+        # validation
+        if "schedule_id" not in request_payload:
+            raise ValidationError(
+                value=str(request_payload), message="Request not valid"
+            )
+
+        schedule_id = request_payload["schedule_id"]
         scheduler.remove_from_schedule(schedule_id)
         return cls._create_response()

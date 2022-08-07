@@ -10,6 +10,4 @@ scheduler = DynamoScheduler()
 
 def lambda_handler(event, context):
     lambda_proxy_event = LambdaProxyRequest(event, context)
-    request_handler.get_schedule_item(
-        lambda_proxy_event.payload["schedule_id"], scheduler
-    )
+    request_handler.get_schedule_item(lambda_proxy_event.payload, scheduler)

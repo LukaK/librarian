@@ -33,7 +33,8 @@ def test__requests_handler_get_schedule_item(dynamo_tables):
     response = RequestsHandler.add_schedule_item(payload, scheduler)
 
     schedule_id = json.loads(response["body"])["schedule_id"]
-    response = RequestsHandler.get_schedule_item(schedule_id, scheduler)
+    payload = {"schedule_id": schedule_id}
+    response = RequestsHandler.get_schedule_item(payload, scheduler)
     assert response["status_code"] == 200
 
 
@@ -50,5 +51,6 @@ def test__requests_handler_remove_schedule_item(dynamo_tables):
     response = RequestsHandler.add_schedule_item(payload, scheduler)
 
     schedule_id = json.loads(response["body"])["schedule_id"]
-    response = RequestsHandler.remove_schedule_item(schedule_id, scheduler)
+    payload = {"schedule_id": schedule_id}
+    response = RequestsHandler.remove_schedule_item(payload, scheduler)
     assert response["status_code"] == 200

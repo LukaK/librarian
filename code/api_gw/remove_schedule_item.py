@@ -8,8 +8,7 @@ request_handler = RequestsHandler()
 scheduler = DynamoScheduler()
 
 
+# TODO: Add tests
 def lambda_handler(event, context):
     lambda_proxy_event = LambdaProxyRequest(event, context)
-    request_handler.remove_schedule_item(
-        lambda_proxy_event.payload["schedule_id"], scheduler
-    )
+    request_handler.remove_schedule_item(lambda_proxy_event.payload, scheduler)
