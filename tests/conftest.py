@@ -3,7 +3,7 @@ import os
 
 import boto3  # type: ignore
 import pytest  # type: ignore
-from lib.scheduler.environment import Environment
+from lib.environment import Environment
 from moto import mock_dynamodb2  # type: ignore
 from pytest_mock import MockerFixture  # type: ignore
 

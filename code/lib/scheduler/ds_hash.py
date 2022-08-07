@@ -8,11 +8,11 @@ from typing import Optional
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
 from botocore.exceptions import ClientError  # type: ignore
+from lib.environment import Environment
 from lib.exceptions import OperationsError
 from lib.logging import request_context
 
 from .data import TimePeriodMap
-from .environment import Environment
 
 # resources
 logger = logging.getLogger(__name__)

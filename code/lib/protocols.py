@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from typing import Protocol
 
-from lib.api_gw.data import ScheduleRequest
-from lib.scheduler.data import ScheduleItem
+from .api_gw.data import ScheduleRequest
+from .scheduler.data import ScheduleItem
 
 
 class Scheduler(Protocol):
