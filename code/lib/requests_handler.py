@@ -37,16 +37,12 @@ class RequestsHandler:
 
     @classmethod
     @handler_methods_wrapper
-    def add_schedule_item(
-        cls, schedule_request_payload: dict, scheduler: Scheduler
-    ) -> Response:
-        logger.info(
-            f"Handling schedule request payload: {schedule_request_payload}",
-            extra=request_context,
-        )
+    def add_schedule_item(cls, request_payload: dict, scheduler: Scheduler) -> Response:
+
+        logger.info(f"Adding schedule item: {request_payload}", extra=request_context)
 
         # initialize schedule request
-        schedule_request = ScheduleRequest(**schedule_request_payload)
+        schedule_request = ScheduleRequest(**request_payload)
 
         # create schedule item
         schedule_item = scheduler.create_schedule_item(schedule_request)
