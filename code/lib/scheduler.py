@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 dynamodb_resource = boto3.resource("dynamodb")
 
 
-# TODO: Refactor this, too much responsibility, add handlers for hash and for item table
 class DynamoScheduler:
 
     # resources
@@ -24,6 +23,14 @@ class DynamoScheduler:
 
     # constants
     time_period_hash_key = "time_period_hash"
+
+    @classmethod
+    def get_schedule_item(self, schedule_id: str) -> ScheduleItem:
+        pass
+
+    @classmethod
+    def remove_from_schedule(self, schedule_id: str) -> None:
+        pass
 
     @classmethod
     def add_to_schedule(cls, schedule_item: ScheduleItem) -> None:
