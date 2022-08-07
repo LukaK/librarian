@@ -24,6 +24,8 @@ class RequestsHandler:
                 response = Response(status_code=400, body=e.message)
             except EnvironmentConfigError as e:
                 response = Response(status_code=500, body=e.message)
+            except Exception as e:
+                response = Response(status_code=501, body=str(e))
 
             logger.info(f"Returning response: {response}", extra=request_context)
             return asdict(response)
