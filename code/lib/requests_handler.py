@@ -65,8 +65,7 @@ class RequestsHandler:
         schedule_request = ScheduleRequest(**request_payload)
 
         # create schedule item
-        schedule_item = scheduler.create_schedule_item(schedule_request)
-        scheduler.add_to_schedule(schedule_item)
+        schedule_item = scheduler.add_to_schedule(schedule_request)
 
         # create response
         return cls._create_response(schedule_item)

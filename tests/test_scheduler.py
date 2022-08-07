@@ -17,7 +17,7 @@ def test__scheduler_get_item_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_create_schedule_item(dynamo_tables):
-    from lib.data import ScheduleItem, ScheduleRequest
+    from lib.data import DynamodbItem, ScheduleRequest
     from lib.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -25,14 +25,13 @@ def test__scheduler_create_schedule_item(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-
-    assert isinstance(schedule_item, ScheduleItem)
+    dynamodb_item = DynamoScheduler._create_dynamodb_item(schedule_request)
+    assert isinstance(dynamodb_item, DynamodbItem)
 
 
 @pytest.mark.scheduler
 def test__scheduler_get_item_exists(dynamo_tables):
-    from lib.data import ScheduleItem, ScheduleRequest
+    from lib.data import ScheduleRequest
     from lib.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -40,9 +39,7 @@ def test__scheduler_get_item_exists(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-    DynamoScheduler.add_to_schedule(schedule_item)
-
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
     schedule_item_2 = DynamoScheduler.get_schedule_item(schedule_item.schedule_id)
     assert schedule_item == schedule_item_2
 
@@ -59,7 +56,7 @@ def test__scheduler_remove_from_schedule_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__scheduler_remove_from_schedule_exists(dynamo_tables):
-    from lib.data import ScheduleItem, ScheduleRequest
+    from lib.data import ScheduleRequest
     from lib.exceptions import NotFound
     from lib.scheduler import DynamoScheduler, dynamodb_resource
 
@@ -68,8 +65,7 @@ def test__scheduler_remove_from_schedule_exists(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-    DynamoScheduler.add_to_schedule(schedule_item)
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
     DynamoScheduler.remove_from_schedule(schedule_item.schedule_id)
 
     with pytest.raises(NotFound):
@@ -77,27 +73,8 @@ def test__scheduler_remove_from_schedule_exists(dynamo_tables):
 
 
 @pytest.mark.scheduler
-def test__scheduler_add_to_schedule_exists(dynamo_tables):
-
-    from lib.data import ScheduleItem, ScheduleRequest
-    from lib.exceptions import OperationsError
-    from lib.scheduler import DynamoScheduler, dynamodb_resource
-
-    patch_resource(dynamodb_resource)
-    schedule_time = int(time.time())
-    schedule_request = ScheduleRequest(
-        workflow_arn="test_arn", schedule_time=schedule_time
-    )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-    DynamoScheduler.add_to_schedule(schedule_item)
-
-    with pytest.raises(OperationsError):
-        DynamoScheduler.add_to_schedule(schedule_item)
-
-
-@pytest.mark.scheduler
 def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
-    from lib.data import ScheduleItem, ScheduleRequest
+    from lib.data import ScheduleRequest
     from lib.scheduler import DynamoScheduler, dynamodb_resource
 
     patch_resource(dynamodb_resource)
@@ -106,8 +83,6 @@ def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-
-    DynamoScheduler.add_to_schedule(schedule_item)
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
     schedule_item_2 = DynamoScheduler.get_schedule_item(schedule_item.schedule_id)
     assert schedule_item == schedule_item_2

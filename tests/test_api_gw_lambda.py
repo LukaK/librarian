@@ -28,8 +28,7 @@ def test__remove_item_lambda_exists(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-    DynamoScheduler.add_to_schedule(schedule_item)
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
 
     lambda_event = {
         "httpMethod": "POST",
@@ -62,8 +61,7 @@ def test__get_item_lambda_exists(dynamo_tables):
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
-    schedule_item = DynamoScheduler.create_schedule_item(schedule_request)
-    DynamoScheduler.add_to_schedule(schedule_item)
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
 
     lambda_event = {
         "httpMethod": "GET",
