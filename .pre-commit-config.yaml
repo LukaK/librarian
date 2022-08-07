@@ -1,8 +1,6 @@
 # Install pre-commit:   pip3 install pre-commit
 # Install hooks:        pre-commit install
 # Autoupdate versions:  pre-commit autoupdate
-default_language_version:
-  python: python3.7.9
 
 default_stages: [commit, push]
 fail_fast: true
@@ -16,13 +14,14 @@ repos:
 
   # code formating
   - repo: https://github.com/ambv/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
     - id: black
+      args: [--config, .config/black/config.toml]
 
   # import sorting
   - repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.10.1
     hooks:
       - id: isort
         args: [--profile, black]
@@ -49,7 +48,7 @@ repos:
 
   # yaml linter
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.26.3
+    rev: v1.27.1
     hooks:
       - id: yamllint
         name: yamllint
@@ -59,7 +58,7 @@ repos:
 
   # cloudformation linter
   - repo: https://github.com/aws-cloudformation/cfn-python-lint
-    rev: v0.59.0
+    rev: v0.61.4
     hooks:
       - id: cfn-python-lint
         name: cfn-lint

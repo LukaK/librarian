@@ -78,7 +78,7 @@ builtins =
 disable-noqa = False
 
 # Set the maximum length that any line (with some exceptions) may be.
-# max-line-length = 100
+max-line-length = 88
 # Set the maximum allowed McCabe complexity value for a block of code.
 # NOTE: complexity disabled for now, should be taken into account in the future
 # max-complexity = 20

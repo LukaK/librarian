@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 dynamodb_resource = boto3.resource("dynamodb")
 
 
+# TODO: Refactor this, too much responsibility, add handlers for hash and for item table
 class DynamoScheduler:
 
     # resources
