@@ -2,8 +2,9 @@
 import time
 
 import pytest  # type: ignore
-from lib.data import DynamodbItem, LambdaProxyRequest, ScheduleItem
+from lib.api_gw.data import LambdaProxyRequest
 from lib.exceptions import OperationsError
+from lib.scheduler.data import DynamodbItem, ScheduleItem
 
 
 @pytest.mark.data

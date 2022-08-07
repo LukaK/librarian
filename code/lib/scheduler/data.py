@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import random
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Optional
+
+
+# data class for mapping of time period to a hash for dynamodb
+@dataclass(frozen=True)
+class TimePeriodMap:
+    time_period: str
+    time_period_hash: str
+
+
+class ScheduleStatus(str, Enum):
+    NOT_STARTED: str = "NOT_STARTED"
+    PROCESSING: str = "PROCESSING"
+    COMPLETED: str = "COMPLETED"
+
+
+@dataclass(frozen=True)
+class ScheduleItem:
+    schedule_time: int
+    workflow_arn: str
+    workflow_payload: Optional[dict] = field(default_factory=dict)
+    schedule_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
+
+    @property
+    def schedule_time_formatted(self) -> str:
+        return datetime.utcfromtimestamp(self.schedule_time).strftime("%Y-%m-%d %H:%M")
+
+
+@dataclass(frozen=True)
+class DynamodbItem:
+    time_period_hash: str
+    schedule_item: ScheduleItem
+    trigger_time: Optional[int] = None
+    status: Optional[str] = ScheduleStatus.NOT_STARTED.value
+
+    def __post_init__(self):
+        if self.trigger_time is None:
+            trigger_time = self.schedule_item.schedule_time * 10**6
+            trigger_time += random.randint(0, 10**6 - 1)  # nosec
+            object.__setattr__(self, "trigger_time", trigger_time)

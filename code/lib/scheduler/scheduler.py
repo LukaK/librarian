@@ -5,12 +5,13 @@ from dataclasses import asdict, fields
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
 from botocore.exceptions import ClientError  # type: ignore
+from lib.api_gw.data import ScheduleRequest
+from lib.exceptions import NotFound, OperationsError
+from lib.logging import request_context
 
-from .data import DynamodbItem, ScheduleItem, ScheduleRequest
+from .data import DynamodbItem, ScheduleItem
 from .ds_hash import DSPeriodHasher
 from .environment import Environment
-from .exceptions import NotFound, OperationsError
-from .logging import request_context
 
 # resources
 logger = logging.getLogger(__name__)

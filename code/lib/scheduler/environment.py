@@ -2,7 +2,7 @@
 import os
 from dataclasses import dataclass
 
-from .exceptions import EnvironmentConfigError
+from lib.exceptions import EnvironmentConfigError
 
 
 @dataclass

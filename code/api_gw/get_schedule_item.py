@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from lib.data import LambdaProxyRequest
-from lib.requests_handler import RequestsHandler
-from lib.scheduler import DynamoScheduler
+from lib.api_gw.data import LambdaProxyRequest
+from lib.api_gw.requests_handler import RequestsHandler
+from lib.scheduler.scheduler import DynamoScheduler
 
 # resources
 request_handler = RequestsHandler()

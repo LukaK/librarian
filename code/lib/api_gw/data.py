@@ -1,18 +1,12 @@
 #!/usr/bin/env python
 import json
-import random
-import uuid
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
+from dataclasses import dataclass
 from typing import Optional
 
 import pydantic  # type: ignore
+from lib.exceptions import OperationsError, ValidationError
 
-from .exceptions import OperationsError, ValidationError
 
-
-# TODO: Add validator for scheduler arn ( check if function exists )
 # data for schedule request
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int
@@ -42,45 +36,7 @@ class Response:
     body: str
 
 
-# data class for mapping of time period to a hash for dynamodb
-@dataclass(frozen=True)
-class TimePeriodMap:
-    time_period: str
-    time_period_hash: str
-
-
-class ScheduleStatus(str, Enum):
-    NOT_STARTED: str = "NOT_STARTED"
-    PROCESSING: str = "PROCESSING"
-    COMPLETED: str = "COMPLETED"
-
-
-@dataclass(frozen=True)
-class ScheduleItem:
-    schedule_time: int
-    workflow_arn: str
-    workflow_payload: Optional[dict] = field(default_factory=dict)
-    schedule_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
-
-    @property
-    def schedule_time_formatted(self) -> str:
-        return datetime.utcfromtimestamp(self.schedule_time).strftime("%Y-%m-%d %H:%M")
-
-
-@dataclass(frozen=True)
-class DynamodbItem:
-    time_period_hash: str
-    schedule_item: ScheduleItem
-    trigger_time: Optional[int] = None
-    status: Optional[str] = ScheduleStatus.NOT_STARTED.value
-
-    def __post_init__(self):
-        if self.trigger_time is None:
-            trigger_time = self.schedule_item.schedule_time * 10**6
-            trigger_time += random.randint(0, 10**6 - 1)  # nosec
-            object.__setattr__(self, "trigger_time", trigger_time)
-
-
+# lambda proxy dataclsss
 class LambdaProxyRequest(pydantic.BaseModel):
     lambda_event: dict
     context: Optional[object] = None

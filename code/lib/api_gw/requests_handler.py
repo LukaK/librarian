@@ -5,16 +5,18 @@ import logging
 from dataclasses import asdict
 from typing import Callable, Optional
 
-from .data import Response, ScheduleItem, ScheduleRequest
-from .encoder import DecimalEncoder
-from .exceptions import (
+from lib.exceptions import (
     EnvironmentConfigError,
     NotFound,
     OperationsError,
     ValidationError,
 )
-from .logging import request_context
-from .protocols import Scheduler
+from lib.logging import request_context
+from lib.protocols import Scheduler
+from lib.scheduler.data import ScheduleItem
+
+from .data import Response, ScheduleRequest
+from .encoder import DecimalEncoder
 
 logger = logging.getLogger(__name__)
 

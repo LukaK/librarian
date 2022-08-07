@@ -9,7 +9,7 @@ from moto.core import patch_resource  # type: ignore
 
 @pytest.mark.scheduler
 def test__ds_hash_load_hash_not_exists(dynamo_tables):
-    from lib.ds_hash import DSPeriodHasher, dynamodb_resource
+    from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
     patch_resource(dynamodb_resource)
 
@@ -19,7 +19,7 @@ def test__ds_hash_load_hash_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__ds_hash_load_hash_exists(dynamo_tables):
-    from lib.ds_hash import DSPeriodHasher, dynamodb_resource
+    from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
     patch_resource(dynamodb_resource)
 
@@ -38,7 +38,7 @@ def test__ds_hash_load_hash_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__ds_hash_add_period_hash_not_exists(dynamo_tables):
-    from lib.ds_hash import DSPeriodHasher, dynamodb_resource
+    from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
     patch_resource(dynamodb_resource)
 
@@ -56,7 +56,7 @@ def test__ds_hash_add_period_hash_not_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__ds_hash_add_period_hash_exists(dynamo_tables):
-    from lib.ds_hash import DSPeriodHasher, dynamodb_resource
+    from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
     patch_resource(dynamodb_resource)
 
@@ -73,7 +73,7 @@ def test__ds_hash_add_period_hash_exists(dynamo_tables):
 
 @pytest.mark.scheduler
 def test__ds_hash_get_time_period_hash_not_exists(dynamo_tables):
-    from lib.ds_hash import DSPeriodHasher, dynamodb_resource
+    from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
     patch_resource(dynamodb_resource)
 

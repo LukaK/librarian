@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 from typing import Protocol
 
-from .data import ScheduleItem, ScheduleRequest
+from lib.api_gw.data import ScheduleRequest
+from lib.scheduler.data import ScheduleItem
 
 
 class Scheduler(Protocol):
-    @classmethod
-    def create_schedule_item(self, schedule_request: ScheduleRequest) -> ScheduleItem:
-        ...
-
     @classmethod
     def get_schedule_item(self, schedule_id: str) -> ScheduleItem:
         ...
 
     @classmethod
-    def add_to_schedule(self, schedule_item: ScheduleItem) -> None:
+    def add_to_schedule(self, schedule_item: ScheduleRequest) -> ScheduleItem:
         ...
 
     @classmethod
