@@ -7,10 +7,9 @@ from lib.dispatcher.data import LambdaProxySnsEvent
 from .data import DynamodbItem, ScheduleItem, ScheduleStatus
 
 
-# TODO: Fix publis private methods
 class DataMapper:
     @classmethod
-    def _dynamodb_item_to_record(cls, dynamodb_item: DynamodbItem) -> dict:
+    def dynamodb_item_to_record(cls, dynamodb_item: DynamodbItem) -> dict:
 
         schedule_item_payload = asdict(dynamodb_item.schedule_item)
         dynamodb_item_payload = asdict(dynamodb_item)
@@ -21,7 +20,7 @@ class DataMapper:
         return dynamodb_item_payload
 
     @classmethod
-    def _record_to_dynamodb_item(cls, record: dict) -> DynamodbItem:
+    def record_to_dynamodb_item(cls, record: dict) -> DynamodbItem:
 
         schedule_item_payload = {f.name: record[f.name] for f in fields(ScheduleItem)}
         schedule_item_payload["schedule_time"] = int(
@@ -40,10 +39,10 @@ class DataMapper:
 
     @classmethod
     def dynamodb_item_to_sns_payload(cls, dynamodb_item: DynamodbItem) -> str:
-        return json.dumps(cls._dynamodb_item_to_record(dynamodb_item))
+        return json.dumps(cls.dynamodb_item_to_record(dynamodb_item))
 
     @classmethod
     def sns_payload_todynamodb_item(
         cls, sns_event: LambdaProxySnsEvent
     ) -> DynamodbItem:
-        return DataMapper._record_to_dynamodb_item(json.loads(sns_event.payload))
+        return DataMapper.record_to_dynamodb_item(json.loads(sns_event.payload))

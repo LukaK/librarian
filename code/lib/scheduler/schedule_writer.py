@@ -53,7 +53,7 @@ class DynamoScheduleWriter:
         )
 
         dynamodb_item = cls._create_dynamodb_item(schedule_request)
-        dynamodb_item_payload = DataMapper._dynamodb_item_to_record(dynamodb_item)
+        dynamodb_item_payload = DataMapper.dynamodb_item_to_record(dynamodb_item)
 
         try:
             cls.table.put_item(

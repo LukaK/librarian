@@ -47,7 +47,7 @@ class DynamoScheduleReader:
             raise NotFound(value=schedule_id, message="Schedule item not found")
 
         # construct dynamodb item from the record
-        dynamodb_item = DataMapper._record_to_dynamodb_item(item)
+        dynamodb_item = DataMapper.record_to_dynamodb_item(item)
 
         logger.info(
             f"Item successfully retrieved: {dynamodb_item}", extra=request_context
@@ -91,7 +91,7 @@ class DynamoScheduleReader:
             next_key = response.get("LastEvaluatedKey")
 
             for dynamodb_record in dynamodb_items:
-                dynamodb_item = DataMapper._record_to_dynamodb_item(dynamodb_record)
+                dynamodb_item = DataMapper.record_to_dynamodb_item(dynamodb_record)
                 if dynamodb_item.status != status.value:
                     continue
 
