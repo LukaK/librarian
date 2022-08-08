@@ -98,7 +98,7 @@ def dynamo_tables(aws_credentials, patch_environment):
 
 
 # TODO: Change env variable name and in cf, it is arn not topic name
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sns(patch_environment, mocker: MockerFixture, aws_credentials):
     with mock_sns():
         sns_resource = boto3.resource("sns", region_name="us-east-1")
@@ -113,7 +113,7 @@ def sns(patch_environment, mocker: MockerFixture, aws_credentials):
         yield workflow_topic
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def workflow_role(aws_credentials):
     with mock_iam():
         iam_resource = boto3.resource("iam", region_name="eu-west-1")
@@ -141,7 +141,7 @@ def zip_lambda_function_code():
     return zip_output.read()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def lambda_function(workflow_role):
     with mock_lambda():
         lambda_client = boto3.client("lambda")
