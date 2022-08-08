@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import functools
-import json
 import logging
 from dataclasses import asdict
 from typing import Callable, Optional
 
+import simplejson as json  # type: ignore
 from lib.exceptions import (
     EnvironmentConfigError,
     NotFound,
@@ -16,7 +16,6 @@ from lib.protocols import Scheduler
 from lib.scheduler.data import ScheduleItem
 
 from .data import Response, ScheduleRequest
-from .encoder import DecimalEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +48,7 @@ class RequestsHandler:
         cls, schedule_item: Optional[ScheduleItem] = None, status_code: int = 200
     ) -> Response:
 
-        body = (
-            json.dumps(asdict(schedule_item), cls=DecimalEncoder)
-            if schedule_item
-            else ""
-        )
+        body = json.dumps(asdict(schedule_item)) if schedule_item else ""
         response = Response(status_code=200, body=body)
         return response
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 from dataclasses import asdict, fields
 
+import simplejson as json  # type: ignore
+from lib.dispatcher.data import LambdaProxySnsEvent
+
 from .data import DynamodbItem, ScheduleItem, ScheduleStatus
 
 
@@ -20,6 +23,9 @@ class DataMapper:
     def _record_to_dynamodb_item(cls, record: dict) -> DynamodbItem:
 
         schedule_item_payload = {f.name: record[f.name] for f in fields(ScheduleItem)}
+        schedule_item_payload["schedule_time"] = int(
+            schedule_item_payload["schedule_time"]
+        )
         schedule_item = ScheduleItem(**schedule_item_payload)
 
         dynamodb_item = DynamodbItem(
@@ -30,3 +36,13 @@ class DataMapper:
         )
 
         return dynamodb_item
+
+    @classmethod
+    def dynamodb_item_to_sns_payload(cls, dynamodb_item: DynamodbItem) -> str:
+        return json.dumps(cls._dynamodb_item_to_record(dynamodb_item))
+
+    @classmethod
+    def sns_payload_todynamodb_item(
+        cls, sns_event: LambdaProxySnsEvent
+    ) -> DynamodbItem:
+        return DataMapper._record_to_dynamodb_item(json.loads(sns_event.payload))

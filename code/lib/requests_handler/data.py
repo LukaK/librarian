@@ -11,7 +11,7 @@ from lib.exceptions import OperationsError, ValidationError
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int
     workflow_arn: str
-    workflow_payload: Optional[dict] = None
+    workflow_payload: dict = {}
 
     @pydantic.validator("workflow_payload")
     @classmethod

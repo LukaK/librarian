@@ -27,7 +27,7 @@ class ScheduleItem:
     schedule_time: int
     workflow_arn: str
     workflow_payload: Optional[dict] = field(default_factory=dict)
-    schedule_id: Optional[str] = field(default_factory=lambda: str(uuid.uuid4()))
+    schedule_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     @property
     def schedule_time_formatted(self) -> str:
@@ -39,7 +39,7 @@ class DynamodbItem:
     time_period_hash: str
     schedule_item: ScheduleItem
     trigger_time: Optional[int] = None
-    status: Optional[str] = ScheduleStatus.NOT_STARTED
+    status: str = ScheduleStatus.NOT_STARTED
 
     def __post_init__(self):
         if self.trigger_time is None:

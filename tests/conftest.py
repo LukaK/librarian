@@ -1,11 +1,16 @@
 #!/usr/bin/env python
+import io
+import json
 import os
+import zipfile
 
 import boto3  # type: ignore
 import pytest  # type: ignore
 from lib.environment import Environment
-from moto import mock_dynamodb2, mock_sns  # type: ignore
+from moto import mock_dynamodb2, mock_iam, mock_lambda, mock_sns  # type: ignore
 from pytest_mock import MockerFixture  # type: ignore
+
+# TODO: Return dataclasses
 
 
 @pytest.fixture(scope="function")
@@ -106,3 +111,54 @@ def sns(patch_environment, mocker: MockerFixture, aws_credentials):
         )
 
         yield workflow_topic
+
+
+@pytest.fixture
+def workflow_role(aws_credentials):
+    with mock_iam():
+        iam_resource = boto3.resource("iam", region_name="eu-west-1")
+
+        assume_policy_document = {
+            "Version": "2012-10-17",
+            "Statement": {"Effect": "Allow", "Action": "*", "Resource": "*"},
+        }
+
+        role = iam_resource.create_role(
+            RoleName="TestStepFunctionRole",
+            AssumeRolePolicyDocument=json.dumps(assume_policy_document),
+        )
+
+        yield role
+
+
+def zip_lambda_function_code():
+    function_code = "def lambda_handler(event, context):\n" "    return event"
+
+    zip_output = io.BytesIO()
+    with zipfile.ZipFile(zip_output, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        zip_file.writestr("lambda_function.py", function_code)
+    zip_output.seek(0)
+    return zip_output.read()
+
+
+@pytest.fixture
+def lambda_function(workflow_role):
+    with mock_lambda():
+        lambda_client = boto3.client("lambda")
+        lambda_definition = {
+            "FunctionName": "test_function",
+            "Runtime": "python3.7",
+            "Role": workflow_role.arn,
+            "Handler": "lambda_function.lambda_handler",
+            "Code": {
+                "ZipFile": zip_lambda_function_code(),
+            },
+            "Description": "lambda function",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "Publish": True,
+        }
+
+        response = lambda_client.create_function(**lambda_definition)
+        lambda_arn = response["FunctionArn"]
+        yield lambda_client, lambda_arn

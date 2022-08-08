@@ -6,12 +6,9 @@ import time
 import boto3  # type: ignore
 from lib.environment import Environment
 from lib.logging import request_context
-from lib.requests_handler.encoder import DecimalEncoder
 from lib.scheduler.data import DynamodbItem, ScheduleStatus
 from lib.scheduler.data_mapper import DataMapper
 from lib.scheduler.scheduler import DynamoScheduler
-
-from .data import LambdaProxySnsEvent
 
 # resources
 logger = logging.getLogger(__name__)
@@ -32,9 +29,7 @@ class Dispatcher:
         )
 
         # send to sns
-        sns_payload = json.dumps(
-            DataMapper._dynamodb_item_to_record(dynamodb_item), cls=DecimalEncoder
-        )
+        sns_payload = DataMapper.dynamodb_item_to_sns_payload(dynamodb_item)
         cls.sns_topic.publish(Message=sns_payload)
 
         # update table entry
@@ -44,12 +39,9 @@ class Dispatcher:
         logger.info("Item dispatched successfully", extra=request_context)
 
     @classmethod
-    def trigger_lambda_workflow(cls, sns_payload: LambdaProxySnsEvent) -> None:
+    def trigger_lambda_workflow(cls, dynamodb_item: DynamodbItem) -> None:
 
-        logger.info(f"Starting lambda workflow: {sns_payload}", extra=request_context)
-        dynamodb_item = DataMapper._record_to_dynamodb_item(
-            json.loads(sns_payload.payload)
-        )
+        logger.info(f"Starting lambda workflow: {dynamodb_item}", extra=request_context)
         schedule_item = dynamodb_item.schedule_item
 
         # waint untill its time
