@@ -2,7 +2,7 @@
 from typing import Generator, Protocol
 
 from .requests_handler.data import ScheduleRequest
-from .scheduler.data import QueryRange, ScheduleItem
+from .scheduler.data import QueryRange, ScheduleItem, ScheduleStatus
 
 
 class Scheduler(Protocol):
@@ -20,6 +20,6 @@ class Scheduler(Protocol):
 
     @classmethod
     def get_schedule_items(
-        self, query_range: QueryRange
+        self, query_range: QueryRange, status: ScheduleStatus
     ) -> Generator[ScheduleItem, None, None]:
         ...
