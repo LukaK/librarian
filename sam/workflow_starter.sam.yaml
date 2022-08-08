@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ScheduleItemsTableName:
+    Type: String
+    Description: Name of the schedule table
+
+  HashTableName:
+    Type: String
+    Description: Name of the schedule meta table
+
+  ScheduleIdIndexName:
+    Type: String
+    Description: Schedule index name for the table
+
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Environment:
+      Variables:
+        SCHEDULE_ITEMS_TABLE_NAME: !Ref ScheduleItemsTableName
+        HASH_TABLE_NAME: !Ref HashTableName
+        SCHEDULE_ID_INDEX_NAME: !Ref ScheduleIdIndexName
+
+Resources:
+  #===================================================================
+  # Sns
+  #===================================================================
+  DispatcherSns:
+    Type: AWS::SNS::Topic
+    Properties: {}
+
+  #===================================================================
+  # Lambda functions
+  #===================================================================
+  Scheduler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../code
+      Handler: src.dispatcher.lambda_handler
+      MemorySize: 512
+      Timeout: 60
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt DispatcherSns.TopicName
+      Events:
+        PeriodicSchedule:
+          Type: Schedule
+          Properties:
+            Description: Invocation rule for scheduler lambda for event publishing
+            Enabled: true
+            Schedule: 'rate(1 minute)'
+      Environment:
+        Variables:
+          DISPATCHER_SNS_ARN: !Ref DispatcherSns
+
+  WorkflowStarter:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../code
+      Handler: src.workflow_starter.lambda_handler
+      MemorySize: 128
+      Timeout: 90
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+        - LambdaInvokePolicy:
+            FunctionName: "workflow*"
+      Events:
+        SnsTrigger:
+          Type: SNS
+          Properties:
+            Topic: !Ref DispatcherSns

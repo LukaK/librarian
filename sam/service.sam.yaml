@@ -33,6 +33,18 @@ Resources:
         # HostedZoneId: !Ref HostedZoneId
 
   #===================================================================
+  # Workflow starter
+  #===================================================================
+  WorkflowStarter:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./workflow_starter.sam.yaml
+      Parameters:
+        ScheduleItemsTableName: !Ref ScheduleItemsTable
+        ScheduleIdIndexName: ScheduleIdIndex
+        HashTableName: !Ref HashTable
+
+  #===================================================================
   # Schedule table
   #===================================================================
   ScheduleItemsTable:
