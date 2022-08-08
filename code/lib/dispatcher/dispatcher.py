@@ -20,7 +20,7 @@ class Dispatcher:
 
     # resources
     environment = Environment.dispatcher_env()
-    sns_topic = sns_resource.Topic(environment.dispatch_topic_name)
+    sns_topic = sns_resource.Topic(environment.dispatch_topic_arn)
 
     @classmethod
     def dispatch_dynamodb_item(cls, dynamodb_item: DynamodbItem) -> None:

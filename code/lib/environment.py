@@ -18,7 +18,7 @@ class DynamodbSchedulerEnvironment:
 
 @dataclass
 class DispatcherEnvironment:
-    dispatch_topic_name: str
+    dispatch_topic_arn: str
 
 
 class Environment:
@@ -47,7 +47,7 @@ class Environment:
         logger.info("Retrieving environment for the dispatcher", extra=request_context)
         try:
             env = DispatcherEnvironment(
-                dispatch_topic_name=os.environ[cls.dispatch_sns_env_name],
+                dispatch_topic_arn=os.environ[cls.dispatch_sns_env_name],
             )
             logger.info(f"Environment retrieved: {env}", extra=request_context)
             return env

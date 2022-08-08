@@ -10,8 +10,6 @@ from lib.environment import Environment
 from moto import mock_dynamodb2, mock_iam, mock_lambda, mock_sns  # type: ignore
 from pytest_mock import MockerFixture  # type: ignore
 
-# TODO: Return dataclasses
-
 
 @pytest.fixture(scope="function")
 def aws_credentials(mocker: MockerFixture):
@@ -97,7 +95,6 @@ def dynamo_tables(aws_credentials, patch_environment):
         yield items_table, hash_table
 
 
-# TODO: Change env variable name and in cf, it is arn not topic name
 @pytest.fixture(scope="function")
 def sns(patch_environment, mocker: MockerFixture, aws_credentials):
     with mock_sns():
