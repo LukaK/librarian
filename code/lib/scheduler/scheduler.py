@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 from dataclasses import asdict
+from typing import Generator
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr, Key  # type: ignore
@@ -10,7 +11,13 @@ from lib.exceptions import NotFound, OperationsError
 from lib.logging import request_context
 from lib.requests_handler.data import ScheduleRequest
 
-from .data import DynamodbItem, ScheduleItem
+from .data import (
+    DynamodbItem,
+    DynamodbQueryRange,
+    QueryRange,
+    ScheduleItem,
+    ScheduleStatus,
+)
 from .data_mapper import DataMapper
 from .ds_hash import DSPeriodHasher
 
@@ -19,6 +26,7 @@ logger = logging.getLogger(__name__)
 dynamodb_resource = boto3.resource("dynamodb")
 
 
+# TODO: Refactor scheduler
 class DynamoScheduler:
 
     # resources
@@ -125,3 +133,82 @@ class DynamoScheduler:
             extra=request_context,
         )
         return dynamodb_item
+
+    @classmethod
+    def _get_schedule_items_for_ddb_query_range(
+        cls, query_range: DynamodbQueryRange, status: ScheduleStatus
+    ) -> Generator[ScheduleItem, None, None]:
+
+        logger.info(
+            f"Retrieving schedule items for ddb range: {query_range}",
+            extra=request_context,
+        )
+
+        next_key = None
+        query_arguments = {
+            "KeyConditionExpression": Key(cls.time_period_hash_key).eq(
+                query_range.time_period_hash
+            )
+            & Key(cls.trigger_time_key).between(
+                query_range.start_trigger_time, query_range.end_trigger_time - 1
+            )
+            & Key("status").eq(status.value),
+        }
+
+        while True:
+
+            if next_key is not None:
+                query_arguments["ExclusiveStartKey"] = next_key
+
+            response = cls.table.query(**query_arguments)
+            schedule_items = response["Items"]
+            next_key = response.get("LastEvaluatedKey")
+
+            for schedule_item in schedule_items:
+                yield schedule_item
+
+            if next_key is None:
+                break
+        logger.info("Schedule items retrieved succesfully", extra=request_context)
+
+    @classmethod
+    def get_schedule_items(
+        cls, query_range: QueryRange, status: ScheduleStatus
+    ) -> Generator[ScheduleItem, None, None]:
+
+        logger.info(
+            f"Retrieving schedule items for range: {query_range}", extra=request_context
+        )
+
+        # get start query dynamodb range
+        start_period_map = DSPeriodHasher.get_time_period_hash(query_range.start_time)
+        start_dynamodb_query_range = DynamodbQueryRange(
+            time_period_hash=start_period_map.time_period_hash, query_range=query_range
+        )
+
+        # get end query dynamodb range
+        end_period_map = DSPeriodHasher.get_time_period_hash(query_range.end_time)
+        end_dynamodb_query_range = DynamodbQueryRange(
+            time_period_hash=end_period_map.time_period_hash, query_range=query_range
+        )
+
+        # retrieving items from the dynamodb
+        for item in cls._get_schedule_items_for_ddb_query_range(
+            start_dynamodb_query_range, status
+        ):
+            yield item
+
+        if start_dynamodb_query_range == end_dynamodb_query_range:
+            logger.info("Schedule items retrieved succesfully", extra=request_context)
+            return
+
+        # special case
+        logger.info("Retrieving items for the next period", extra=request_context)
+        for item in cls._get_schedule_items_for_ddb_query_range(
+            end_dynamodb_query_range, status
+        ):
+            yield item
+
+        logger.info(
+            "Items for the next period retrieved successfully", extra=request_context
+        )

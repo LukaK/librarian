@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from typing import Protocol
+from typing import Generator, Protocol
 
 from .requests_handler.data import ScheduleRequest
-from .scheduler.data import ScheduleItem
+from .scheduler.data import QueryRange, ScheduleItem
 
 
 class Scheduler(Protocol):
@@ -16,4 +16,10 @@ class Scheduler(Protocol):
 
     @classmethod
     def remove_from_schedule(self, schedule_id: str) -> None:
+        ...
+
+    @classmethod
+    def get_schedule_items(
+        self, query_range: QueryRange
+    ) -> Generator[ScheduleItem, None, None]:
         ...

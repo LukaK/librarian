@@ -6,6 +6,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from lib.exceptions import ValidationError
+
 
 # data class for mapping of time period to a hash for dynamodb
 @dataclass(frozen=True)
@@ -44,3 +46,29 @@ class DynamodbItem:
             trigger_time = self.schedule_item.schedule_time * 10**6
             trigger_time += random.randint(0, 10**6 - 1)  # nosec
             object.__setattr__(self, "trigger_time", trigger_time)
+
+
+@dataclass
+class QueryRange:
+    start_time: int
+    end_time: int
+
+    def __post_init__(self):
+        time_diff = self.end_time - self.start_time
+
+        if 0 < time_diff < 600:
+            raise ValidationError(value=time_diff, message="Query range not valid")
+
+
+@dataclass
+class DynamodbQueryRange:
+    time_period_hash: str
+    query_range: QueryRange
+
+    @property
+    def start_trigger_time(self):
+        return self.query_range.start_schedule_time * 10**6
+
+    @property
+    def end_trigger_time(self):
+        return self.query_range.end_schedule_time * 10**6
