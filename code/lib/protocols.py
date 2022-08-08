@@ -2,12 +2,16 @@
 from typing import Generator, Protocol
 
 from .requests_handler.data import ScheduleRequest
-from .scheduler.data import QueryRange, ScheduleItem, ScheduleStatus
+from .scheduler.data import DynamodbItem, QueryRange, ScheduleItem, ScheduleStatus
 
 
 class Scheduler(Protocol):
     @classmethod
     def get_schedule_item(self, schedule_id: str) -> ScheduleItem:
+        ...
+
+    @classmethod
+    def get_dynamodb_item(self, schedule_id: str) -> ScheduleItem:
         ...
 
     @classmethod
@@ -19,7 +23,19 @@ class Scheduler(Protocol):
         ...
 
     @classmethod
+    def update_dynamodb_item_status(
+        cls, dynamodb_item: DynamodbItem, status: ScheduleStatus
+    ) -> None:
+        ...
+
+    @classmethod
     def get_schedule_items(
         self, query_range: QueryRange, status: ScheduleStatus
     ) -> Generator[ScheduleItem, None, None]:
+        ...
+
+    @classmethod
+    def get_dynamodb_items(
+        self, query_range: QueryRange, status: ScheduleStatus
+    ) -> Generator[DynamodbItem, None, None]:
         ...

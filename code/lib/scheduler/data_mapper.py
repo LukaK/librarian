@@ -7,6 +7,7 @@ from lib.dispatcher.data import LambdaProxySnsEvent
 from .data import DynamodbItem, ScheduleItem, ScheduleStatus
 
 
+# TODO: Fix publis private methods
 class DataMapper:
     @classmethod
     def _dynamodb_item_to_record(cls, dynamodb_item: DynamodbItem) -> dict:

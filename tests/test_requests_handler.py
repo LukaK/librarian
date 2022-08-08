@@ -8,9 +8,7 @@ from moto.core import patch_resource  # type: ignore
 
 def test__requests_handler_add_schedule_item(dynamo_tables):
     from lib.requests_handler.requests_handler import RequestsHandler
-    from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
-
-    patch_resource(dynamodb_resource)
+    from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
     schedule_time = int(time.time())
@@ -21,9 +19,7 @@ def test__requests_handler_add_schedule_item(dynamo_tables):
 
 def test__requests_handler_get_schedule_item(dynamo_tables):
     from lib.requests_handler.requests_handler import RequestsHandler
-    from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
-
-    patch_resource(dynamodb_resource)
+    from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
     schedule_time = int(time.time())
@@ -38,9 +34,7 @@ def test__requests_handler_get_schedule_item(dynamo_tables):
 
 def test__requests_handler_remove_schedule_item(dynamo_tables):
     from lib.requests_handler.requests_handler import RequestsHandler
-    from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
-
-    patch_resource(dynamodb_resource)
+    from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
     schedule_time = int(time.time())
