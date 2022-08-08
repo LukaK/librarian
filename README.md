@@ -12,7 +12,13 @@ sam delete --stack-name <stack name>
 ```
 
 ### Development
+Requirements:
+* docker
+
 ```
 gem install cfn-nag
 pre-commit install --hook-type pre-commit pre-push
+
+# run fast tests
+pytest --cov=./code -m "not slow" .
 ```
