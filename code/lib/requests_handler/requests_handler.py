@@ -13,7 +13,7 @@ from lib.exceptions import (
 )
 from lib.logging import request_context
 from lib.protocols import Scheduler
-from lib.scheduler.data import ScheduleItem
+from lib.scheduler import ScheduleItem
 
 from .data import Response, ScheduleRequest
 

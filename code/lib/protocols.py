@@ -2,7 +2,7 @@
 from typing import Generator, Protocol
 
 from .requests_handler.data import ScheduleRequest
-from .scheduler.data import DynamodbItem, QueryRange, ScheduleItem, ScheduleStatus
+from .scheduler import DynamodbItem, QueryRange, ScheduleItem, ScheduleStatus
 
 
 class Scheduler(Protocol):

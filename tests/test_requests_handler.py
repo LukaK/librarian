@@ -2,9 +2,6 @@
 import json
 import time
 
-import pytest  # type: ignore
-from moto.core import patch_resource  # type: ignore
-
 
 def test__requests_handler_add_schedule_item(dynamo_tables):
     from lib.requests_handler.requests_handler import RequestsHandler

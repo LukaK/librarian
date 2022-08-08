@@ -6,7 +6,7 @@ import time
 import boto3  # type: ignore
 from lib.environment import Environment
 from lib.logging import request_context
-from lib.scheduler.data import DynamodbItem, ScheduleStatus
+from lib.scheduler import DynamodbItem, ScheduleStatus
 from lib.scheduler.data_mapper import DataMapper
 from lib.scheduler.scheduler import DynamoScheduler
 

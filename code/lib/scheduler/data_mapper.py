@@ -2,7 +2,7 @@
 from dataclasses import asdict, fields
 
 import simplejson as json  # type: ignore
-from lib.dispatcher.data import LambdaProxySnsEvent
+from lib.dispatcher import LambdaProxySnsEvent
 
 from .data import DynamodbItem, ScheduleItem, ScheduleStatus
 

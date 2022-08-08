@@ -9,9 +9,9 @@ from lib.environment import Environment
 from lib.exceptions import OperationsError
 from lib.logging import request_context
 from lib.requests_handler.data import ScheduleRequest
+from lib.scheduler.data_mapper import DataMapper
 
 from .data import DynamodbItem, ScheduleItem, ScheduleStatus
-from .data_mapper import DataMapper
 from .ds_hash import DSPeriodHasher
 
 # resources

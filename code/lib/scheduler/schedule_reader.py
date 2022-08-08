@@ -7,6 +7,7 @@ from boto3.dynamodb.conditions import Key  # type: ignore
 from lib.environment import Environment
 from lib.exceptions import NotFound
 from lib.logging import request_context
+from lib.scheduler.data_mapper import DataMapper
 
 from .data import (
     DynamodbItem,
@@ -15,7 +16,6 @@ from .data import (
     ScheduleItem,
     ScheduleStatus,
 )
-from .data_mapper import DataMapper
 from .ds_hash import DSPeriodHasher
 
 # resources
