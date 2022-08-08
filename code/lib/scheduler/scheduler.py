@@ -152,7 +152,6 @@ class DynamoScheduler:
             & Key(cls.trigger_time_key).between(
                 query_range.start_trigger_time, query_range.end_trigger_time - 1
             )
-            & Key("status").eq(status.value),
         }
 
         while True:
@@ -161,11 +160,15 @@ class DynamoScheduler:
                 query_arguments["ExclusiveStartKey"] = next_key
 
             response = cls.table.query(**query_arguments)
-            schedule_items = response["Items"]
+            dynamodb_items = response["Items"]
             next_key = response.get("LastEvaluatedKey")
 
-            for schedule_item in schedule_items:
-                yield schedule_item
+            for dynamodb_record in dynamodb_items:
+                dynamodb_item = DataMapper._record_to_dynamodb_item(dynamodb_record)
+                if dynamodb_item.status != status.value:
+                    continue
+
+                yield dynamodb_item.schedule_item
 
             if next_key is None:
                 break

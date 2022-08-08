@@ -2,9 +2,9 @@
 import time
 
 import pytest  # type: ignore
-from lib.exceptions import OperationsError
+from lib.exceptions import OperationsError, ValidationError
 from lib.requests_handler.data import LambdaProxyRequest
-from lib.scheduler.data import DynamodbItem, ScheduleItem
+from lib.scheduler.data import DynamodbItem, QueryRange, ScheduleItem
 
 
 @pytest.mark.data
@@ -82,3 +82,15 @@ def test__lambda_proxy_request():
         "queryStringParameters": {"schedle_id": "test_id"},
     }
     LambdaProxyRequest(lambda_event=lambda_event)
+
+
+@pytest.mark.data
+def test__query_range_negative_diff():
+    with pytest.raises(ValidationError):
+        QueryRange(start_time=1, end_time=0)
+
+
+@pytest.mark.data
+def test__query_range_too_big_range():
+    with pytest.raises(ValidationError):
+        QueryRange(start_time=0, end_time=11 * 60)

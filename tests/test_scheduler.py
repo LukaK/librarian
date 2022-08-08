@@ -87,3 +87,35 @@ def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
     schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
     schedule_item_2 = DynamoScheduler.get_schedule_item(schedule_item.schedule_id)
     assert schedule_item == schedule_item_2
+
+
+@pytest.mark.scheduler
+def test__scheduler_get_schedule_items(dynamo_tables):
+    from lib.requests_handler.data import ScheduleRequest
+    from lib.scheduler.data import QueryRange, ScheduleStatus
+    from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
+
+    patch_resource(dynamodb_resource)
+
+    schedule_time = int(time.time())
+    schedule_request = ScheduleRequest(
+        workflow_arn="test_arn", schedule_time=schedule_time
+    )
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
+
+    schedule_request = ScheduleRequest(
+        workflow_arn="test_arn", schedule_time=schedule_time + 5 * 60
+    )
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
+
+    schedule_request = ScheduleRequest(
+        workflow_arn="test_arn", schedule_time=schedule_time + 6 * 60
+    )
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
+
+    query_range = QueryRange(start_time=schedule_time, end_time=schedule_time + 6 * 60)
+    schedule_items = DynamoScheduler.get_schedule_items(
+        query_range, status=ScheduleStatus.NOT_STARTED
+    )
+
+    assert len(list(schedule_items)) == 2

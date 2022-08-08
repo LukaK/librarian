@@ -56,7 +56,7 @@ class QueryRange:
     def __post_init__(self):
         time_diff = self.end_time - self.start_time
 
-        if 0 < time_diff < 600:
+        if 0 > time_diff or time_diff > 600:
             raise ValidationError(value=time_diff, message="Query range not valid")
 
 
@@ -67,8 +67,8 @@ class DynamodbQueryRange:
 
     @property
     def start_trigger_time(self):
-        return self.query_range.start_schedule_time * 10**6
+        return self.query_range.start_time * 10**6
 
     @property
     def end_trigger_time(self):
-        return self.query_range.end_schedule_time * 10**6
+        return self.query_range.end_time * 10**6
