@@ -4,7 +4,7 @@ import os
 import boto3  # type: ignore
 import pytest  # type: ignore
 from lib.environment import Environment
-from moto import mock_dynamodb2  # type: ignore
+from moto import mock_dynamodb2, mock_sns  # type: ignore
 from pytest_mock import MockerFixture  # type: ignore
 
 
@@ -28,6 +28,7 @@ def patch_environment(mocker: MockerFixture, aws_credentials):
     items_table_name = "schedule_items"
     hash_table_name = "period_hashes"
     index_name = "gsi_id"
+    dispatcher_topic_name = "dispatcher_sns"
 
     mocker.patch.dict(
         os.environ,
@@ -37,7 +38,7 @@ def patch_environment(mocker: MockerFixture, aws_credentials):
             Environment.schedule_id_index_env_name: index_name,
         },
     )
-    return items_table_name, index_name, hash_table_name
+    return items_table_name, index_name, hash_table_name, dispatcher_topic_name
 
 
 @pytest.fixture(scope="function")
@@ -89,3 +90,19 @@ def dynamo_tables(aws_credentials, patch_environment):
         items_table = dynamodb.Table(patch_environment[0])
         hash_table = dynamodb.Table(patch_environment[2])
         yield items_table, hash_table
+
+
+# TODO: Change env variable name and in cf, it is arn not topic name
+@pytest.fixture
+def sns(patch_environment, mocker: MockerFixture, aws_credentials):
+    with mock_sns():
+        sns_resource = boto3.resource("sns", region_name="us-east-1")
+        workflow_topic = sns_resource.create_topic(Name=patch_environment[3])
+
+        # patch environment with sns arn
+        mocker.patch.dict(
+            os.environ,
+            {Environment.dispatch_sns_env_name: workflow_topic.arn},
+        )
+
+        yield workflow_topic

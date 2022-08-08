@@ -5,7 +5,6 @@ import pytest  # type: ignore
 from moto.core import patch_resource  # type: ignore
 
 
-@pytest.mark.scheduler
 def test__scheduler_get_item_not_exists(dynamo_tables):
     from lib.exceptions import NotFound
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
@@ -15,7 +14,6 @@ def test__scheduler_get_item_not_exists(dynamo_tables):
         DynamoScheduler.get_schedule_item("test")
 
 
-@pytest.mark.scheduler
 def test__scheduler_create_schedule_item(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.data import DynamodbItem
@@ -30,7 +28,6 @@ def test__scheduler_create_schedule_item(dynamo_tables):
     assert isinstance(dynamodb_item, DynamodbItem)
 
 
-@pytest.mark.scheduler
 def test__scheduler_get_item_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
@@ -45,7 +42,6 @@ def test__scheduler_get_item_exists(dynamo_tables):
     assert schedule_item == schedule_item_2
 
 
-@pytest.mark.scheduler
 def test__scheduler_remove_from_schedule_not_exists(dynamo_tables):
     from lib.exceptions import NotFound
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
@@ -55,7 +51,6 @@ def test__scheduler_remove_from_schedule_not_exists(dynamo_tables):
         DynamoScheduler.remove_from_schedule("test")
 
 
-@pytest.mark.scheduler
 def test__scheduler_remove_from_schedule_exists(dynamo_tables):
     from lib.exceptions import NotFound
     from lib.requests_handler.data import ScheduleRequest
@@ -73,7 +68,6 @@ def test__scheduler_remove_from_schedule_exists(dynamo_tables):
         DynamoScheduler.get_schedule_item(schedule_item.schedule_id)
 
 
-@pytest.mark.scheduler
 def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler, dynamodb_resource
@@ -89,7 +83,6 @@ def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
     assert schedule_item == schedule_item_2
 
 
-@pytest.mark.scheduler
 def test__scheduler_get_schedule_items(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.data import QueryRange, ScheduleStatus

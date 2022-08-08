@@ -7,7 +7,6 @@ from lib.exceptions import OperationsError
 from moto.core import patch_resource  # type: ignore
 
 
-@pytest.mark.scheduler
 def test__ds_hash_load_hash_not_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
@@ -17,7 +16,6 @@ def test__ds_hash_load_hash_not_exists(dynamo_tables):
     assert period_hash is None
 
 
-@pytest.mark.scheduler
 def test__ds_hash_load_hash_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
@@ -36,7 +34,6 @@ def test__ds_hash_load_hash_exists(dynamo_tables):
     assert period_map.time_period_hash == "test_hash"
 
 
-@pytest.mark.scheduler
 def test__ds_hash_add_period_hash_not_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
@@ -54,7 +51,6 @@ def test__ds_hash_add_period_hash_not_exists(dynamo_tables):
     assert item[DSPeriodHasher.hash_key] == period_map.time_period_hash
 
 
-@pytest.mark.scheduler
 def test__ds_hash_add_period_hash_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 
@@ -71,7 +67,6 @@ def test__ds_hash_add_period_hash_exists(dynamo_tables):
         DSPeriodHasher._add_period_hash("test_period")
 
 
-@pytest.mark.scheduler
 def test__ds_hash_get_time_period_hash_not_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher, dynamodb_resource
 

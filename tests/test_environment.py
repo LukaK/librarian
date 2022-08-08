@@ -2,7 +2,6 @@
 import pytest  # type: ignore
 
 
-@pytest.mark.environment
 def test__environment_no_patch():
     from lib.environment import Environment, EnvironmentConfigError
 
@@ -10,7 +9,6 @@ def test__environment_no_patch():
         Environment.dynamodb_scheduler_env()
 
 
-@pytest.mark.environment
 def test__environment_patched(patch_environment):
     from lib.environment import DynamodbSchedulerEnvironment, Environment
 

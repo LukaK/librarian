@@ -137,10 +137,10 @@ class DynamoScheduler:
     @classmethod
     def _get_schedule_items_for_ddb_query_range(
         cls, query_range: DynamodbQueryRange, status: ScheduleStatus
-    ) -> Generator[ScheduleItem, None, None]:
+    ) -> Generator[DynamodbItem, None, None]:
 
         logger.info(
-            f"Retrieving schedule items for ddb range: {query_range}",
+            f"Retrieving dynamodb items for ddb range: {query_range}",
             extra=request_context,
         )
 
@@ -168,19 +168,19 @@ class DynamoScheduler:
                 if dynamodb_item.status != status.value:
                     continue
 
-                yield dynamodb_item.schedule_item
+                yield dynamodb_item
 
             if next_key is None:
                 break
-        logger.info("Schedule items retrieved succesfully", extra=request_context)
+        logger.info("Dynamodb items retrieved succesfully", extra=request_context)
 
     @classmethod
-    def get_schedule_items(
+    def get_dynamodb_items(
         cls, query_range: QueryRange, status: ScheduleStatus
-    ) -> Generator[ScheduleItem, None, None]:
+    ) -> Generator[DynamodbItem, None, None]:
 
         logger.info(
-            f"Retrieving schedule items for range: {query_range}", extra=request_context
+            f"Retrieving dynamodb items for range: {query_range}", extra=request_context
         )
 
         # get start query dynamodb range
@@ -202,7 +202,7 @@ class DynamoScheduler:
             yield item
 
         if start_dynamodb_query_range == end_dynamodb_query_range:
-            logger.info("Schedule items retrieved succesfully", extra=request_context)
+            logger.info("Dynamodb items retrieved succesfully", extra=request_context)
             return
 
         # special case
@@ -215,3 +215,34 @@ class DynamoScheduler:
         logger.info(
             "Items for the next period retrieved successfully", extra=request_context
         )
+
+    @classmethod
+    def get_schedule_items(
+        cls, query_range: QueryRange, status: ScheduleStatus
+    ) -> Generator[ScheduleItem, None, None]:
+
+        logger.info(
+            f"Retrieving schedule items for range: {query_range}", extra=request_context
+        )
+
+        for dynamodb_item in cls.get_dynamodb_items(query_range, status):
+            yield dynamodb_item.schedule_item
+
+        logger.info("Schedule items retrieved successfully", extra=request_context)
+
+    @classmethod
+    def update_dynamodb_item_status(
+        cls, dynamodb_item: DynamodbItem, status: ScheduleStatus
+    ) -> None:
+        logger.info(f"Updating dynamodb item: {dynamodb_item}", extra=request_context)
+
+        key_payload = {
+            "time_period_hash": dynamodb_item.time_period_hash,
+            "trigger_time": dynamodb_item.trigger_time,
+        }
+
+        cls.table.update_item(
+            Key=key_payload,
+            AttributeUpdates={"status": {"Value": status.value, "Action": "PUT"}},
+        )
+        logger.info("Update completed successfully")

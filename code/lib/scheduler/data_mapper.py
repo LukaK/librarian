@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from dataclasses import asdict, fields
 
-from .data import DynamodbItem, ScheduleItem
+from .data import DynamodbItem, ScheduleItem, ScheduleStatus
 
 
 class DataMapper:
@@ -10,6 +10,7 @@ class DataMapper:
 
         schedule_item_payload = asdict(dynamodb_item.schedule_item)
         dynamodb_item_payload = asdict(dynamodb_item)
+        dynamodb_item_payload["status"] = dynamodb_item_payload["status"].value
         dynamodb_item_payload.update(schedule_item_payload)
         del dynamodb_item_payload["schedule_item"]
 
@@ -24,7 +25,7 @@ class DataMapper:
         dynamodb_item = DynamodbItem(
             time_period_hash=record["time_period_hash"],
             trigger_time=record["trigger_time"],
-            status=record["status"],
+            status=ScheduleStatus(record["status"]),
             schedule_item=schedule_item,
         )
 

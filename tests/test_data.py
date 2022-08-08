@@ -7,7 +7,6 @@ from lib.requests_handler.data import LambdaProxyRequest
 from lib.scheduler.data import DynamodbItem, QueryRange, ScheduleItem
 
 
-@pytest.mark.data
 def test__schedule_item_random_id():
     schedule_time = int(time.time())
     schedule_item_1 = ScheduleItem(
@@ -22,7 +21,6 @@ def test__schedule_item_random_id():
     assert schedule_item_1.schedule_id != schedule_item_2.schedule_id
 
 
-@pytest.mark.data
 def test__schedule_item_set_id():
     schedule_time = int(time.time())
     schedule_item_1 = ScheduleItem(
@@ -39,7 +37,6 @@ def test__schedule_item_set_id():
     assert schedule_item_1.schedule_id == schedule_item_2.schedule_id
 
 
-@pytest.mark.data
 def test__dynamodb_item_random_trigger_time():
     schedule_time = int(time.time())
     schedule_item = ScheduleItem(
@@ -52,7 +49,6 @@ def test__dynamodb_item_random_trigger_time():
     assert dynamodb_item1.trigger_time != dynamodb_item2.trigger_time
 
 
-@pytest.mark.data
 def test__dynamodb_item_set_trigger_time():
     schedule_time = int(time.time())
     schedule_item = ScheduleItem(
@@ -69,13 +65,11 @@ def test__dynamodb_item_set_trigger_time():
     assert dynamodb_item1.trigger_time == dynamodb_item2.trigger_time
 
 
-@pytest.mark.data
 def test__lambda_proxy_request_invalid_event():
     with pytest.raises(OperationsError):
         LambdaProxyRequest(lambda_event={})
 
 
-@pytest.mark.data
 def test__lambda_proxy_request():
     lambda_event = {
         "httpMethod": "GET",
@@ -84,13 +78,11 @@ def test__lambda_proxy_request():
     LambdaProxyRequest(lambda_event=lambda_event)
 
 
-@pytest.mark.data
 def test__query_range_negative_diff():
     with pytest.raises(ValidationError):
         QueryRange(start_time=1, end_time=0)
 
 
-@pytest.mark.data
 def test__query_range_too_big_range():
     with pytest.raises(ValidationError):
         QueryRange(start_time=0, end_time=11 * 60)

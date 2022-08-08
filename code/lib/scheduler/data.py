@@ -39,7 +39,7 @@ class DynamodbItem:
     time_period_hash: str
     schedule_item: ScheduleItem
     trigger_time: Optional[int] = None
-    status: Optional[str] = ScheduleStatus.NOT_STARTED.value
+    status: Optional[str] = ScheduleStatus.NOT_STARTED
 
     def __post_init__(self):
         if self.trigger_time is None:
