@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 from dataclasses import asdict
+from typing import Optional
 
 import boto3  # type: ignore
 from boto3.dynamodb.conditions import Attr  # type: ignore
@@ -17,6 +18,7 @@ from .ds_hash import DSPeriodHasher
 # resources
 logger = logging.getLogger(__name__)
 dynamodb_resource = boto3.resource("dynamodb")
+dynamodb_client = boto3.client("dynamodb")
 
 
 class DynamoScheduleWriter:
@@ -70,7 +72,9 @@ class DynamoScheduleWriter:
         return dynamodb_item.schedule_item
 
     @classmethod
-    def _create_dynamodb_item(cls, schedule_request: ScheduleRequest) -> DynamodbItem:
+    def _create_dynamodb_item(
+        cls, schedule_request: ScheduleRequest, schedule_id: Optional[str] = None
+    ) -> DynamodbItem:
         logger.info(
             f"Creating dynamodb item from: {schedule_request}", extra=request_context
         )
@@ -84,6 +88,7 @@ class DynamoScheduleWriter:
             schedule_time=schedule_request.schedule_time,
             workflow_arn=schedule_request.workflow_arn,
             workflow_payload=schedule_request.workflow_payload,
+            schedule_id=schedule_id,
         )
 
         dynamodb_item = DynamodbItem(
@@ -113,3 +118,47 @@ class DynamoScheduleWriter:
             AttributeUpdates={"status": {"Value": status.value, "Action": "PUT"}},
         )
         logger.info("Update completed successfully")
+
+    @classmethod
+    def update_dynamodb_item(
+        cls, dynamodb_item: DynamodbItem, schedule_request: ScheduleRequest
+    ) -> DynamodbItem:
+        logger.info(
+            f"Updating dynamodb item: {dynamodb_item}: {schedule_request}",
+            extra=request_context,
+        )
+
+        new_dynamodb_item = cls._create_dynamodb_item(
+            schedule_request, dynamodb_item.schedule_item.schedule_id
+        )
+
+        # get transact payloads
+        old_transact_record = DataMapper.dynamodb_item_to_transact_record(dynamodb_item)
+        new_transact_record = DataMapper.dynamodb_item_to_transact_record(
+            new_dynamodb_item
+        )
+
+        old_key_payload = {
+            k: old_transact_record[k]
+            for k in (cls.time_period_hash_key, cls.trigger_time_key)
+        }
+
+        dynamodb_client.transact_write_items(
+            TransactItems=[
+                {
+                    "Delete": {
+                        "TableName": cls.environment.items_table_name,
+                        "Key": old_key_payload,
+                    },
+                },
+                {
+                    "Put": {
+                        "TableName": cls.environment.items_table_name,
+                        "Item": new_transact_record,
+                    }
+                },
+            ]
+        )
+
+        logger.info("Item updated successfully", extra=request_context)
+        return new_dynamodb_item

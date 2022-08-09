@@ -23,6 +23,12 @@ class Scheduler(Protocol):
         ...
 
     @classmethod
+    def update_schedule_item(
+        self, schedule_id: str, schedule_item: ScheduleRequest
+    ) -> ScheduleItem:
+        ...
+
+    @classmethod
     def update_dynamodb_item_status(
         cls, dynamodb_item: DynamodbItem, status: ScheduleStatus
     ) -> None:

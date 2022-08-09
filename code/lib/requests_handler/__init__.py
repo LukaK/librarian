@@ -1,1 +1,1 @@
-from .data import LambdaProxyRequest  # noqa
+from .data import LambdaProxyRequest, ScheduleRequest  # noqa

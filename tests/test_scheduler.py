@@ -2,6 +2,7 @@
 import time
 
 import pytest  # type: ignore
+from lib.exceptions import NotFound
 from moto.core import patch_resource  # type: ignore
 
 
@@ -103,3 +104,37 @@ def test__scheduler_get_schedule_items(dynamo_tables):
     )
 
     assert len(list(schedule_items)) == 2
+
+
+def test__scheduler_update_item_exists(dynamo_tables):
+    from lib.requests_handler.data import ScheduleRequest
+    from lib.scheduler.scheduler import DynamoScheduler
+
+    schedule_time = int(time.time())
+    schedule_request = ScheduleRequest(
+        workflow_arn="test_arn", schedule_time=schedule_time
+    )
+    schedule_item = DynamoScheduler.add_to_schedule(schedule_request)
+    dynamodb_item = DynamoScheduler.get_dynamodb_item(schedule_item.schedule_id)
+    schedule_item_updated = DynamoScheduler.update_schedule_item(
+        schedule_item.schedule_id, schedule_request
+    )
+    dynamodb_item_updated = DynamoScheduler.get_dynamodb_item(
+        schedule_item_updated.schedule_id
+    )
+
+    assert schedule_item == schedule_item_updated
+    assert dynamodb_item != dynamodb_item_updated
+
+
+def test__scheduler_update_item_not_exists(dynamo_tables):
+    from lib.requests_handler.data import ScheduleRequest
+    from lib.scheduler.scheduler import DynamoScheduler
+
+    schedule_time = int(time.time())
+    schedule_request = ScheduleRequest(
+        workflow_arn="test_arn", schedule_time=schedule_time
+    )
+
+    with pytest.raises(NotFound):
+        DynamoScheduler.update_schedule_item("test", schedule_request)

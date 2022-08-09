@@ -102,3 +102,26 @@ class RequestsHandler:
         schedule_id = request_payload["schedule_id"]
         scheduler.remove_from_schedule(schedule_id)
         return cls._create_response()
+
+    @classmethod
+    @_handler_methods_wrapper
+    def update_schedule_item(
+        cls, request_payload: dict, scheduler: Scheduler
+    ) -> Response:
+
+        logger.info(f"Updating schedule item: {request_payload}", extra=request_context)
+
+        if "schedule_id" not in request_payload:
+            raise ValidationError(
+                value=str(request_payload), message="Request not valid"
+            )
+
+        schedule_id = request_payload["schedule_id"]
+        del request_payload["schedule_id"]
+        schedule_request = ScheduleRequest(**request_payload)
+
+        # create schedule item
+        schedule_item = scheduler.update_schedule_item(schedule_id, schedule_request)
+
+        # create response
+        return cls._create_response(schedule_item)

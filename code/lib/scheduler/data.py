@@ -27,7 +27,11 @@ class ScheduleItem:
     schedule_time: int
     workflow_arn: str
     workflow_payload: Optional[dict] = field(default_factory=dict)
-    schedule_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    schedule_id: Optional[str] = None
+
+    def __post_init__(self):
+        if self.schedule_id is None:
+            object.__setattr__(self, "schedule_id", str(uuid.uuid4()))
 
     @property
     def schedule_time_formatted(self) -> str:
