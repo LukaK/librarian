@@ -19,7 +19,7 @@ def test__remove_item_lambda_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -49,7 +49,7 @@ def test__get_item_lambda_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -67,9 +67,10 @@ def test__get_item_lambda_exists(dynamo_tables):
 def test__add_to_schedule_not_exists(dynamo_tables):
     from api_gw.schedule_item import lambda_handler
 
+    schedule_time = int(time.time()) + 3 * 60
     lambda_event = {
         "httpMethod": "POST",
-        "body": json.dumps({"schedule_time": int(time.time()), "workflow_arn": "test"}),
+        "body": json.dumps({"schedule_time": schedule_time, "workflow_arn": "test"}),
     }
     response = lambda_handler(lambda_event, None)
     assert response["status_code"] == 200
@@ -78,11 +79,12 @@ def test__add_to_schedule_not_exists(dynamo_tables):
 def test__update_schedule_item_not_exists(dynamo_tables):
     from api_gw.update_schedule_item import lambda_handler
 
+    schedule_time = int(time.time()) + 3 * 60
     lambda_event = {
         "httpMethod": "POST",
         "body": json.dumps(
             {
-                "schedule_time": int(time.time()),
+                "schedule_time": schedule_time,
                 "workflow_arn": "test",
                 "schedule_id": "test",
             }
@@ -97,7 +99,7 @@ def test__update_schedule_item_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -107,7 +109,7 @@ def test__update_schedule_item_exists(dynamo_tables):
         "httpMethod": "POST",
         "body": json.dumps(
             {
-                "schedule_time": int(time.time()),
+                "schedule_time": schedule_time,
                 "workflow_arn": "test",
                 "schedule_id": schedule_item.schedule_id,
             }

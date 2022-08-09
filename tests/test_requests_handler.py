@@ -8,7 +8,7 @@ def test__requests_handler_add_schedule_item(dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     payload = {"schedule_time": schedule_time, "workflow_arn": "test"}
     response = RequestsHandler.add_schedule_item(payload, scheduler)
     assert response["status_code"] == 200
@@ -19,7 +19,7 @@ def test__requests_handler_get_schedule_item(dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     payload = {"schedule_time": schedule_time, "workflow_arn": "test"}
     response = RequestsHandler.add_schedule_item(payload, scheduler)
 
@@ -34,7 +34,7 @@ def test__requests_handler_remove_schedule_item(dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     payload = {"schedule_time": schedule_time, "workflow_arn": "test"}
     response = RequestsHandler.add_schedule_item(payload, scheduler)
 
@@ -49,7 +49,7 @@ def test__requests_handler_update_schedule_item(dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
 
     scheduler = DynamoScheduler()
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     payload = {"schedule_time": schedule_time, "workflow_arn": "test"}
     response = RequestsHandler.add_schedule_item(payload, scheduler)
 

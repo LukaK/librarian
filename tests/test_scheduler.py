@@ -19,7 +19,7 @@ def test__scheduler_create_schedule_item(dynamo_tables):
     from lib.scheduler.data import DynamodbItem
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -31,7 +31,7 @@ def test__scheduler_get_item_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -53,7 +53,7 @@ def test__scheduler_remove_from_schedule_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -68,7 +68,7 @@ def test__scheduler_add_to_schedule_not_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -82,7 +82,7 @@ def test__scheduler_get_schedule_items(dynamo_tables):
     from lib.scheduler.data import QueryRange, ScheduleStatus
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -110,7 +110,7 @@ def test__scheduler_update_item_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -131,7 +131,7 @@ def test__scheduler_update_item_not_exists(dynamo_tables):
     from lib.requests_handler.data import ScheduleRequest
     from lib.scheduler.scheduler import DynamoScheduler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )

@@ -8,7 +8,7 @@ from lib.scheduler.data import DynamodbItem, QueryRange, ScheduleItem
 
 
 def test__schedule_item_random_id():
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_item_1 = ScheduleItem(
         schedule_time=schedule_time,
         workflow_arn="test_arn",
@@ -22,7 +22,7 @@ def test__schedule_item_random_id():
 
 
 def test__schedule_item_set_id():
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_item_1 = ScheduleItem(
         schedule_time=schedule_time,
         workflow_arn="test_arn",
@@ -38,7 +38,7 @@ def test__schedule_item_set_id():
 
 
 def test__dynamodb_item_random_trigger_time():
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_item = ScheduleItem(
         schedule_time=schedule_time,
         workflow_arn="test_arn",
@@ -50,7 +50,7 @@ def test__dynamodb_item_random_trigger_time():
 
 
 def test__dynamodb_item_set_trigger_time():
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_item = ScheduleItem(
         schedule_time=schedule_time,
         workflow_arn="test_arn",

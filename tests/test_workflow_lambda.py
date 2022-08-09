@@ -10,7 +10,7 @@ def test__workflow_starter_lambda(sns, dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
     from src.workflow_starter import lambda_handler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn="test_arn", schedule_time=schedule_time
     )
@@ -25,7 +25,7 @@ def test__dispatcher_lambda(sns, lambda_function, dynamo_tables):
     from lib.scheduler.scheduler import DynamoScheduler
     from src.dispatcher import lambda_handler
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     schedule_request = ScheduleRequest(
         workflow_arn=lambda_function[1], schedule_time=schedule_time
     )

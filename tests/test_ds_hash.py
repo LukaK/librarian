@@ -62,7 +62,7 @@ def test__ds_hash_add_period_hash_exists(dynamo_tables):
 def test__ds_hash_get_time_period_hash_not_exists(dynamo_tables):
     from lib.scheduler.ds_hash import DSPeriodHasher
 
-    schedule_time = int(time.time())
+    schedule_time = int(time.time()) + 3 * 60
     period_map = DSPeriodHasher.get_time_period_hash(schedule_time)
 
     assert period_map is not None

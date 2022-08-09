@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json
+import time
 from dataclasses import dataclass
 from typing import Optional
 
@@ -7,11 +8,22 @@ import pydantic  # type: ignore
 from lib.exceptions import OperationsError, ValidationError
 
 
+# TODO: Add validation on schedule time that is not in next 2 minutes
 # data for schedule request
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int
     workflow_arn: str
     workflow_payload: dict = {}
+
+    @pydantic.validator("schedule_time")
+    @classmethod
+    def validate_schedule_time(cls, value):
+        current_time = int(time.time())
+        if value <= current_time + 2 * 60:
+            raise ValidationError(
+                value=value, message=f"Schedule time too early: {value}"
+            )
+        return value
 
     @pydantic.validator("workflow_payload")
     @classmethod
