@@ -8,7 +8,6 @@ import pydantic  # type: ignore
 from lib.exceptions import OperationsError, ValidationError
 
 
-# TODO: Add validation on schedule time that is not in next 2 minutes
 # data for schedule request
 class ScheduleRequest(pydantic.BaseModel):
     schedule_time: int

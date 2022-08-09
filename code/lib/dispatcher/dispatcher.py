@@ -38,6 +38,7 @@ class Dispatcher:
         )
         logger.info("Item dispatched successfully", extra=request_context)
 
+    # TODO: Add try catch around lambda function trigger andupdate errors in dynamodb
     @classmethod
     def trigger_lambda_workflow(cls, dynamodb_item: DynamodbItem) -> None:
 
