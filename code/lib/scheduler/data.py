@@ -20,6 +20,7 @@ class ScheduleStatus(str, Enum):
     NOT_STARTED: str = "NOT_STARTED"
     PROCESSING: str = "PROCESSING"
     COMPLETED: str = "COMPLETED"
+    ERROR: str = "ERROR"
 
 
 @dataclass(frozen=True)

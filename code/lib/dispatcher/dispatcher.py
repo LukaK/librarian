@@ -4,6 +4,7 @@ import logging
 import time
 
 import boto3  # type: ignore
+from botocore.exceptions import ClientError  # type: ignore
 from lib.environment import Environment
 from lib.logging import request_context
 from lib.scheduler import DynamodbItem, ScheduleStatus
@@ -55,11 +56,22 @@ class Dispatcher:
             f"Starting lambda function workflow: {schedule_item.workflow_arn}",
             extra=request_context,
         )
-        response = lambda_client.invoke(
-            FunctionName=schedule_item.workflow_arn,
-            InvocationType="Event",
-            Payload=json.dumps(schedule_item.workflow_payload),
-        )
+        try:
+            response = lambda_client.invoke(
+                FunctionName=schedule_item.workflow_arn,
+                InvocationType="Event",
+                Payload=json.dumps(schedule_item.workflow_payload),
+            )
+        except ClientError as e:
+            logger.error(
+                f"Error during invocation of lambda function: {e}",
+                extra=request_context,
+            )
+            DynamoScheduler.update_dynamodb_item_status(
+                dynamodb_item, ScheduleStatus.ERROR
+            )
+            return
+
         DynamoScheduler.update_dynamodb_item_status(
             dynamodb_item, ScheduleStatus.COMPLETED
         )

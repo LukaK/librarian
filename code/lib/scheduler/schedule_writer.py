@@ -106,7 +106,9 @@ class DynamoScheduleWriter:
     def update_dynamodb_item_status(
         cls, dynamodb_item: DynamodbItem, status: ScheduleStatus
     ) -> None:
-        logger.info(f"Updating dynamodb item: {dynamodb_item}", extra=request_context)
+        logger.info(
+            f"Updating status of dynamodb item: {dynamodb_item}", extra=request_context
+        )
 
         key_payload = {
             "time_period_hash": dynamodb_item.time_period_hash,
