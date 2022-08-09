@@ -79,6 +79,23 @@ Resources:
               type: integer
             workflow_payload:
               type: object
+        UpdateScheduleModel:
+          $schema: "http://json-schema.org/draft-04/mySchema#"
+          type: object
+          required:
+            - schedule_id
+            - workflow_arn
+            - schedule_time
+            - workflow_payload
+          properties:
+            workflow_arn:
+              type: string
+            schedule_time:
+              type: integer
+            workflow_payload:
+              type: object
+            schedule_id:
+              type: string
 
   ApiGwInvokeRole:
     Type: "AWS::IAM::Role"
@@ -99,6 +116,7 @@ Resources:
                 Resource:
                   - !GetAtt ScheduleHandler.Arn
                   - !GetAtt GetScheduleItem.Arn
+                  - !GetAtt UpdateScheduleItem.Arn
                   - !GetAtt DeleteSchedule.Arn
 
   #===================================================================
@@ -128,6 +146,33 @@ Resources:
             RestApiId: !Ref ApiGatewayApi
             RequestModel:
               Model: ScheduleModel
+              Required: true
+              ValidateBody: true
+
+  UpdateScheduleItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api_gw.update_schedule_item.lambda_handler
+      CodeUri: ../code
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScheduleItemsTableName
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HashTableName
+        - Statement:
+            - Effect: Allow
+              Action:
+                - "lambda:GetFunction"
+              Resource: !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:*"
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /update_schedule_item
+            Method: POST
+            RestApiId: !Ref ApiGatewayApi
+            RequestModel:
+              Model: UpdateScheduleModel
               Required: true
               ValidateBody: true
 
