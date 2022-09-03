@@ -4,9 +4,16 @@ from typing import Optional
 
 import pydantic
 from lib.exceptions import ValidationError
+from pydantic.dataclasses import dataclass
 
 
-class LambdaProxySnsEvent(pydantic.BaseModel):
+class Config:
+    frozen = True
+    use_enum_values = True
+
+
+@dataclass(config=Config)
+class LambdaProxySnsEvent:
     lambda_event: dict
     context: Optional[object] = None
 
@@ -25,7 +32,3 @@ class LambdaProxySnsEvent(pydantic.BaseModel):
     @property
     def payload(self) -> str:
         return self.lambda_event["Records"][0]["Sns"]["Message"]
-
-    # configuration
-    class Config:
-        frozen = True

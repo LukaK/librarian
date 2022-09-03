@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 import json
 import time
-from dataclasses import dataclass
 from typing import Optional
 
 import pydantic  # type: ignore
 from lib.exceptions import OperationsError, ValidationError
+from pydantic.dataclasses import Field, dataclass
+
+
+class Config:
+    frozen = True
+    use_enum_values = True
 
 
 # data for schedule request
-class ScheduleRequest(pydantic.BaseModel):
+@dataclass(config=Config)
+class ScheduleRequest:
     schedule_time: int
     workflow_arn: str
-    workflow_payload: dict = {}
+    workflow_payload: dict = Field(default_factory=dict)
 
     @pydantic.validator("schedule_time")
     @classmethod
@@ -36,21 +42,18 @@ class ScheduleRequest(pydantic.BaseModel):
                 )
         return value
 
-    class Config:
-        frozen = True
-
 
 # response data
-@dataclass(frozen=True)
+@dataclass(config=Config)
 class Response:
     status_code: int
     body: str
 
 
 # lambda proxy dataclsss
-class LambdaProxyRequest(pydantic.BaseModel):
+@dataclass(config=Config)
+class LambdaProxyRequest:
     lambda_event: dict
-    context: Optional[object] = None
 
     @pydantic.validator("lambda_event")
     @classmethod

@@ -26,7 +26,6 @@ class DataMapper:
         schedule_item_payload["workflow_payload"] = json.dumps(
             schedule_item_payload["workflow_payload"]
         )
-        dynamodb_item_payload["status"] = dynamodb_item_payload["status"].value
         dynamodb_item_payload["trigger_time"] = int(
             dynamodb_item_payload["trigger_time"]
         )
