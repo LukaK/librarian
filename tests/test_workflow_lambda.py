@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import time
 
-import pytest
-from moto.core import patch_client, patch_resource  # type: ignore
+import pytest  # type: ignore
 
 
 def test__workflow_starter_lambda(sns, dynamo_tables):

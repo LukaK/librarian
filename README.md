@@ -4,7 +4,8 @@
 
 ### Instalation
 ```
-# create stack
+# deploy stack
+# you need to add CAPABILITY_AUTO_EXPAND to config
 sam deploy --gudied --template-file sam/service.sam.yaml
 
 # delete stack

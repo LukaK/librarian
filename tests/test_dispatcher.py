@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import time
 
-import pytest
+import pytest  # type: ignore
 
 
 def test__dispatcher_dispatch_schedule_item(sns, dynamo_tables):
