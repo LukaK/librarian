@@ -7,7 +7,7 @@ import zipfile
 import boto3  # type: ignore
 import pytest  # type: ignore
 from lib.environment import Environment
-from moto import mock_dynamodb2, mock_iam, mock_lambda, mock_sns  # type: ignore
+from moto import mock_dynamodb, mock_iam, mock_lambda, mock_sns  # type: ignore
 from pytest_mock import MockerFixture  # type: ignore
 
 
@@ -46,7 +46,7 @@ def patch_environment(mocker: MockerFixture, aws_credentials):
 
 @pytest.fixture(scope="function")
 def dynamo_tables(aws_credentials, patch_environment):
-    with mock_dynamodb2():
+    with mock_dynamodb():
         dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
 
         # Create items table
