@@ -13,47 +13,43 @@ from lib.exceptions import (
 )
 from lib.logging import request_context
 from lib.protocols import Scheduler
-from lib.scheduler import ScheduleItem
 
 from .data import Response, ScheduleRequest
 
 logger = logging.getLogger(__name__)
 
 
+def create_response(data: Optional[dict] = None, status_code: int = 200) -> Response:
+    body = json.dumps(data) if data else ""
+    response = Response(status_code=status_code, body=body)
+    return response
+
+
+def handle_exceptions(function: Callable[..., Response]):
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs) -> dict:
+        try:
+            response = function(*args, **kwargs)
+        except ValidationError as e:
+            response = create_response(status_code=400, data={"message": e.message})
+        except EnvironmentConfigError as e:
+            response = create_response(status_code=500, data={"message": e.message})
+        except NotFound as e:
+            response = create_response(status_code=400, data={"message": e.message})
+        except OperationsError as e:
+            response = create_response(status_code=501, data={"message": e.message})
+        except Exception as e:
+            response = create_response(status_code=502, data={"message": str(e)})
+
+        logger.info(f"Returning response: {response}", extra=request_context)
+        return asdict(response)
+
+    return wrapper
+
+
 class RequestsHandler:
-    @staticmethod
-    def _handler_methods_wrapper(function: Callable[..., Response]):
-        @functools.wraps(function)
-        def wrapper(*args, **kwargs) -> dict:
-            try:
-                response = function(*args, **kwargs)
-            except ValidationError as e:
-                response = Response(status_code=400, body=e.message)
-            except EnvironmentConfigError as e:
-                response = Response(status_code=500, body=e.message)
-            except NotFound as e:
-                response = Response(status_code=400, body=e.message)
-            except OperationsError as e:
-                response = Response(status_code=501, body=e.message)
-            except Exception as e:
-                response = Response(status_code=502, body=str(e))
-
-            logger.info(f"Returning response: {response}", extra=request_context)
-            return asdict(response)
-
-        return wrapper
-
     @classmethod
-    def _create_response(
-        cls, schedule_item: Optional[ScheduleItem] = None, status_code: int = 200
-    ) -> Response:
-
-        body = json.dumps(asdict(schedule_item)) if schedule_item else ""
-        response = Response(status_code=200, body=body)
-        return response
-
-    @classmethod
-    @_handler_methods_wrapper
+    @handle_exceptions
     def add_schedule_item(cls, request_payload: dict, scheduler: Scheduler) -> Response:
 
         logger.info(f"Adding schedule item: {request_payload}", extra=request_context)
@@ -65,10 +61,10 @@ class RequestsHandler:
         schedule_item = scheduler.add_to_schedule(schedule_request)
 
         # create response
-        return cls._create_response(schedule_item)
+        return create_response(asdict(schedule_item))
 
     @classmethod
-    @_handler_methods_wrapper
+    @handle_exceptions
     def get_schedule_item(cls, request_payload: dict, scheduler: Scheduler) -> Response:
 
         logger.info(
@@ -83,10 +79,10 @@ class RequestsHandler:
 
         schedule_id = request_payload["schedule_id"]
         schedule_item = scheduler.get_schedule_item(schedule_id)
-        return cls._create_response(schedule_item)
+        return create_response(asdict(schedule_item))
 
     @classmethod
-    @_handler_methods_wrapper
+    @handle_exceptions
     def remove_schedule_item(
         cls, request_payload: dict, scheduler: Scheduler
     ) -> Response:
@@ -101,10 +97,10 @@ class RequestsHandler:
 
         schedule_id = request_payload["schedule_id"]
         scheduler.remove_from_schedule(schedule_id)
-        return cls._create_response()
+        return create_response()
 
     @classmethod
-    @_handler_methods_wrapper
+    @handle_exceptions
     def update_schedule_item(
         cls, request_payload: dict, scheduler: Scheduler
     ) -> Response:
@@ -124,4 +120,4 @@ class RequestsHandler:
         schedule_item = scheduler.update_schedule_item(schedule_id, schedule_request)
 
         # create response
-        return cls._create_response(schedule_item)
+        return create_response(asdict(schedule_item))
